@@ -177,7 +177,7 @@ const BIOMES={
 const LEDE={
  news:'Valheim left early access with 1.0. The short version: one new biome, one final boss, a pile of gear, <b>no new skills</b>. Everything else on this page has been re-checked against current data.',
  weapons:'Damage shown is <b>quality 1</b>. Deep North weapons are cast at the Black Forge and hardened at the Frost Foundry. Staffs run on eitr, so you need eitr food first.',
- armor:'Armor is <b>quality 1</b>. Set bonuses need every piece. <b>Trinkets</b> go in their own slot, one at a time.',
+ armor:'Armor shows <b>quality 1 → max quality</b>. Ask, Embla and Flametal cap at quality 3 for now — quality 4 is not reachable in-game yet. Set bonuses need every piece. <b>Trinkets</b> go in their own slot, one at a time.',
  food:'Three slots, three <b>different</b> foods. The bonus holds near full for most of the timer, then drops off fast near the end — about 66% left at a quarter of the time remaining. Eitr only comes from eitr foods.',
  mead:'Brew the base at the <b>Mead Ketill</b>, then ferment it for two in-game days. Most bases make 6. Minor/medium/major potions share a 2-minute cooldown.',
  bosses:'Hang a trophy at the Sacrificial Stones to unlock its power. Powers last <b>5 minutes</b> on a shared <b>20-minute</b> cooldown and reach allies within 10 m.',
@@ -350,7 +350,7 @@ const ARMOR=[
 {n:'Padded Helmet',c:'Head',b:'plains',a:26,m:{'Iron':10,'Linen thread':15},s:'Forge 1'},
 {n:'Padded Cuirass',c:'Chest',b:'plains',a:26,m:{'Iron':10,'Linen thread':20},s:'Forge 2',note:'−5% move speed. Full set is 96 armor at max quality.'},
 {n:'Padded Greaves',c:'Legs',b:'plains',a:26,m:{'Iron':10,'Linen thread':20},s:'Forge 2',note:'−5% move speed.'},
-{n:'Carapace Helmet',c:'Head',b:'mistlands',a:32,m:{'Carapace':16,'Scale hide':3,'Mandible':2,'Refined eitr':4},s:'Black Forge 1',note:'Set: 96 armor at Q1, 114 at Q4. −10% move speed total.'},
+{n:'Carapace Helmet',c:'Head',b:'mistlands',a:32,m:{'Carapace':16,'Scale hide':3,'Mandible':2,'Refined eitr':4},s:'Black Forge 1',note:'−10% move speed with breastplate and greaves.'},
 {n:'Carapace Breastplate',c:'Chest',b:'mistlands',a:32,m:{'Carapace':20,'Scale hide':3,'Iron':5,'Refined eitr':4},s:'Black Forge 1',note:'−5% move speed.'},
 {n:'Carapace Greaves',c:'Legs',b:'mistlands',a:32,m:{'Carapace':20,'Scale hide':3,'Iron':5,'Refined eitr':4},s:'Black Forge 1',note:'−5% move speed.'},
 {n:'Eitr-weave Hood',c:'Head',b:'mistlands',a:16,m:{'Linen thread':16,'Refined eitr':15,'Iron':2},s:'Galdr Table',note:'Mage set. Boosts eitr regen.'},
@@ -363,7 +363,7 @@ const ARMOR=[
 {n:'Hood of Embla',c:'Head',b:'ashlands',a:19,m:{'Linen thread':16,'Refined eitr':15,'Asksvin hide':2},s:'Galdr Table',note:'+30% eitr regen. Full set +130%.'},
 {n:'Robes of Embla',c:'Chest',b:'ashlands',a:19,m:{'Linen thread':20,'Refined eitr':20,'Asksvin hide':10,'Flametal':5},s:'Galdr Table',note:'+50% eitr regen.'},
 {n:'Trousers of Embla',c:'Legs',b:'ashlands',a:19,m:{'Linen thread':20,'Refined eitr':20,'Asksvin hide':10},s:'Galdr Table',note:'+50% eitr regen.'},
-{n:'Flametal Helmet',c:'Head',b:'ashlands',a:38,m:{'Flametal':16,'Asksvin hide':3,'Charred bone':2,'Refined eitr':4},s:'Black Forge',note:'Set (3pc): +40% heat resistance — lava and boiling water only, not fire. Max quality 3.'},
+{n:'Flametal Helmet',c:'Head',b:'ashlands',a:38,m:{'Flametal':16,'Asksvin hide':3,'Charred bone':2,'Refined eitr':4},s:'Black Forge',note:'Set: +40% heat resistance — lava and boiling water only, not fire.'},
 {n:'Flametal Breastplate',c:'Chest',b:'ashlands',a:38,m:{'Flametal':20,'Asksvin hide':3,'Charred bone':5,'Morgen heart':1},s:'Black Forge',note:'−5% move speed.'},
 {n:'Flametal Greaves',c:'Legs',b:'ashlands',a:38,m:{'Flametal':20,'Asksvin hide':3,'Charred bone':5},s:'Black Forge',note:'−5% move speed.'},
 {n:'Ashen Cape',c:'Cape',b:'ashlands',a:12,m:{'Asksvin hide':6,'Morgen sinew':2,'Flametal':5},s:'Black Forge 3',note:'Resistant to frost. −10% attack stamina, −20% block stamina.'},
@@ -377,7 +377,7 @@ const ARMOR=[
 {n:'Helmet of the Protector',c:'Head',b:'deepnorth',a:44,m:{'Liquid frost':5},s:'Frost Foundry',note:'Heaviest armor in the game. Set bonus text not verified.'},
 {n:'Breastplate of the Protector',c:'Chest',b:'deepnorth',a:44,m:{'Liquid frost':5},s:'Frost Foundry',note:'Resistant to frost.'},
 {n:'Trousers of the Protector',c:'Legs',b:'deepnorth',a:44,m:{'Liquid frost':5},s:'Frost Foundry'},
-{n:'Moose Hide Cape',c:'Cape',b:'deepnorth',a:12,m:{'Bloodgold':5,'Moose sinew':2,'Moose hide':6},s:'Black Forge 4 (sources disagree)',note:'Resistant to frost. −20% attack and run stamina.'},
+{n:'Moose Hide Cape',c:'Cape',b:'deepnorth',a:12,m:{'Bloodgold':5,'Moose sinew':2,'Moose hide':6},s:'Black Forge 4 (sources disagree)',note:'Effects disputed: some sources list frost resistance and −20% attack/run stamina, the game-file datamine lists none.'},
 {n:'Cape of the Caller',c:'Cape',b:'deepnorth',a:12,m:{'Refined eitr':15,'Bloodgold':5,'Seal pelt':6,'Nornathread':2},s:'Galdr Table 4 (sources disagree)',note:'Resistant to frost. +20% eitr regen, −10% dodge stamina.'},
 /* trinkets — one slot, new equipment category */
 {n:'Heart of the Forest',c:'Trinkets',b:'blackforest',m:{'Bronze':5,'Ancient seed':5,'Greydwarf shaman trophy':1},s:'Forge',note:'+25% health regen.'},
@@ -396,6 +396,98 @@ const ARMOR=[
 {n:'Witch Crown',c:'Trinkets',b:'deepnorth',m:{'Bloodgold':5,'Nornathread':5,'Hexen trophy':1},s:'Black Forge',note:'+50 stamina, +50 eitr, +10% health/stamina/eitr regen.'},
 {n:'Neckstabber',c:'Trinkets',b:'deepnorth',m:{'Bloodgold':5,'Long claws':5,'Moose trophy':1},s:'Black Forge',note:'+100 health, +20 armor, +20% health regen, −10% run and attack stamina.'}
 ];
+const SETS=[
+{n:'Rag',b:'meadows',p:['Rag Tunic','Rag Pants']},
+{n:'Leather',b:'meadows',p:['Leather Helmet','Leather Tunic','Leather Pants']},
+{n:'Troll',b:'blackforest',p:['Troll Leather Helmet','Troll Leather Tunic','Troll Leather Pants','Troll Hide Cape'],bonus:'Sneak +15'},
+{n:'Bear',b:'blackforest',p:['Headdress of the Bear','Patterns of the Bear','Loincloth of the Bear'],bonus:'+30% health regen, +15% stamina regen, +10% slash and chop; take +25% physical'},
+{n:'Bronze',b:'blackforest',p:['Bronze Helmet','Bronze Cuirass','Bronze Leggings']},
+{n:'Root',b:'swamp',p:['Root Mask','Root Harnesk','Root Leggings'],bonus:'Bows +15'},
+{n:'Iron',b:'swamp',p:['Iron Helmet','Iron Scale Mail','Iron Greaves']},
+{n:'Fenris',b:'mountain',p:['Fenris Hood','Fenris Coat','Fenris Leggings'],bonus:'Fists +15, resistant to fire'},
+{n:'Wolf',b:'mountain',p:['Drake Helmet','Wolf Hide Chestpiece','Wolf Hide Trousers'],bonus:'Resistant to frost'},
+{n:'Vilebone',b:'plains',p:['Vilebone Visage','Vilebone Cage','Vilebone Drapes'],bonus:'+20% health regen, +40% stamina regen, +20% blunt and pierce; take +25% physical'},
+{n:'Padded',b:'plains',p:['Padded Helmet','Padded Cuirass','Padded Greaves']},
+{n:'Carapace',b:'mistlands',p:['Carapace Helmet','Carapace Breastplate','Carapace Greaves']},
+{n:'Eitr-weave',b:'mistlands',p:['Eitr-weave Hood','Eitr-weave Robe','Eitr-weave Trousers'],bonus:'+100% eitr regen (pieces combined)'},
+{n:'Ask',b:'ashlands',p:['Hood of Ask','Breastplate of Ask','Trousers of Ask'],bonus:'−10% run/jump and −20% attack stamina, +10% pierce'},
+{n:'Embla',b:'ashlands',p:['Hood of Embla','Robes of Embla','Trousers of Embla'],bonus:'+130% eitr regen (pieces combined)'},
+{n:'Flametal',b:'ashlands',p:['Flametal Helmet','Flametal Breastplate','Flametal Greaves'],bonus:'+40% heat resistance (lava, boiling water)'},
+{n:'Vanguard',b:'deepnorth',p:['Hood of the Vanguard','Chestpiece of the Vanguard','Trousers of the Vanguard'],bonus:'−10% run and −20% dodge stamina, +10% health/stamina regen, +10% pierce'},
+{n:'Caller',b:'deepnorth',p:['Headdress of the Caller','Robes of the Caller','Trousers of the Caller'],bonus:'+160% eitr regen (pieces combined), frost resistance from the robes'},
+{n:'Protector',b:'deepnorth',p:['Helmet of the Protector','Breastplate of the Protector','Trousers of the Protector'],bonus:'Not verified yet'}
+];
+/* ARMOR_STATS: sourced per-piece stats, merged into ARMOR by name */
+const ARMOR_STATS={
+'Rag Tunic':{a:1,up:1,mq:2,amax:2,dur:200,wt:2},
+'Rag Pants':{a:1,up:1,mq:2,amax:2,dur:200,wt:2},
+'Leather Helmet':{a:2,up:2,mq:4,amax:8,dur:400,wt:1},
+'Leather Tunic':{a:2,up:2,mq:4,amax:8,dur:400,wt:5},
+'Leather Pants':{a:2,up:2,mq:4,amax:8,dur:400,wt:5},
+'Deer Hide Cape':{a:1,up:1,mq:4,amax:4,dur:400,wt:2},
+'Troll Leather Helmet':{a:6,up:2,mq:4,amax:12,dur:500,wt:1,spd:'0'},
+'Troll Leather Tunic':{a:6,up:2,mq:4,amax:12,dur:500,wt:5,spd:'0'},
+'Troll Leather Pants':{a:6,up:2,mq:4,amax:12,dur:500,wt:5,spd:'0'},
+'Troll Hide Cape':{a:1,up:1,mq:4,amax:4,dur:500,wt:4},
+'Headdress of the Bear':{a:7,up:2,mq:4,amax:13,dur:1000,wt:1,spd:'0'},
+'Patterns of the Bear':{a:7,up:2,mq:4,amax:13,dur:1000,wt:5,spd:'0'},
+'Loincloth of the Bear':{a:7,up:2,mq:4,amax:13,dur:1000,wt:5,spd:'0'},
+'Bronze Helmet':{a:8,up:2,mq:4,amax:14,dur:1000,wt:3,spd:'0'},
+'Bronze Cuirass':{a:8,up:2,mq:4,amax:14,dur:1000,wt:10,spd:'-5%'},
+'Bronze Leggings':{a:8,up:2,mq:4,amax:14,dur:1000,wt:10,spd:'-5%'},
+'Root Mask':{a:8,up:2,mq:4,amax:14,dur:800,wt:3,res:'Resists poison, weak to fire'},
+'Root Harnesk':{a:8,up:2,mq:4,amax:14,dur:800,wt:10,spd:'-2%',res:'Resists pierce, weak to fire'},
+'Root Leggings':{a:8,up:2,mq:4,amax:14,dur:800,wt:10,spd:'-2%',res:'Weak to fire'},
+'Iron Helmet':{a:14,up:2,mq:4,amax:20,dur:1000,wt:3,spd:'0'},
+'Iron Scale Mail':{a:14,up:2,mq:4,amax:20,dur:1000,wt:15,spd:'-5%'},
+'Iron Greaves':{a:14,up:2,mq:4,amax:20,dur:1000,wt:15,spd:'-5%'},
+'Fenris Hood':{a:10,up:2,mq:4,amax:16,dur:1000,wt:1,spd:'+3%'},
+'Fenris Coat':{a:10,up:2,mq:4,amax:16,dur:1000,wt:10,spd:'+3%',res:'Resists frost'},
+'Fenris Leggings':{a:10,up:2,mq:4,amax:16,dur:1000,wt:10,spd:'+3%'},
+'Drake Helmet':{a:20,up:2,mq:4,amax:26,dur:1000,wt:3,spd:'0'},
+'Wolf Hide Chestpiece':{a:20,up:2,mq:4,amax:26,dur:1000,wt:15,spd:'-5%',res:'Resists frost'},
+'Wolf Hide Trousers':{a:20,up:2,mq:4,amax:26,dur:1000,wt:15,spd:'-5%'},
+'Wolf Fur Cape':{a:1,up:1,mq:4,amax:4,dur:1000,wt:4,spd:'0'},
+'Linen Cape':{a:1,up:1,mq:4,amax:4,dur:1500,wt:4,spd:'0'},
+'Lox Cape':{a:1,up:1,mq:4,amax:4,dur:1200,wt:4,spd:'0'},
+'Vilebone Visage':{a:12,up:2,mq:4,amax:18,dur:1000,wt:1,spd:'0'},
+'Vilebone Cage':{a:18,up:2,mq:4,amax:24,dur:1000,wt:5,spd:'0'},
+'Vilebone Drapes':{a:18,up:2,mq:4,amax:24,dur:1000,wt:5,spd:'0'},
+'Padded Helmet':{a:26,up:2,mq:4,amax:32,dur:1000,wt:3,spd:'0'},
+'Padded Cuirass':{a:26,up:2,mq:4,amax:32,dur:1000,wt:10,spd:'-5%'},
+'Padded Greaves':{a:26,up:2,mq:4,amax:32,dur:1000,wt:10,spd:'-5%'},
+'Feather Cape':{a:1,up:1,mq:4,amax:4,dur:1200,wt:4,spd:'0'},
+'Carapace Helmet':{a:32,up:2,mq:4,amax:38,dur:1200,wt:3,spd:'0'},
+'Carapace Breastplate':{a:32,up:2,mq:4,amax:38,dur:1200,wt:10,spd:'-5%'},
+'Carapace Greaves':{a:32,up:2,mq:4,amax:38,dur:1200,wt:10,spd:'-5%'},
+'Eitr-weave Hood':{a:16,up:2,mq:4,amax:22,dur:1000,wt:1,spd:'0',res:'+20% eitr regen'},
+'Eitr-weave Robe':{a:16,up:2,mq:4,amax:22,dur:1000,wt:5,spd:'-2%',res:'+40% eitr regen'},
+'Eitr-weave Trousers':{a:16,up:2,mq:4,amax:22,dur:1000,wt:5,spd:'-2%',res:'+40% eitr regen'},
+'Hood of Ask':{a:28,up:2,mq:3,amax:32,dur:1000,wt:1,spd:'0'},
+'Breastplate of Ask':{a:28,up:2,mq:3,amax:32,dur:1000,wt:5,spd:'0'},
+'Trousers of Ask':{a:28,up:2,mq:3,amax:32,dur:1000,wt:5,spd:'0'},
+'Hood of Embla':{a:19,up:2,mq:3,amax:23,dur:1000,wt:1,spd:'0'},
+'Robes of Embla':{a:19,up:2,mq:3,amax:23,dur:1000,wt:5,spd:'-2%'},
+'Trousers of Embla':{a:19,up:2,mq:3,amax:23,dur:1000,wt:5,spd:'-2%'},
+'Flametal Helmet':{a:38,up:2,mq:3,amax:42,dur:800,wt:3,spd:'0'},
+'Flametal Breastplate':{a:38,up:2,mq:3,amax:42,dur:1000,wt:10,spd:'-5%',res:'+20% heat resistance'},
+'Flametal Greaves':{a:38,up:2,mq:3,amax:42,dur:1000,wt:10,spd:'-5%',res:'+20% heat resistance'},
+'Ashen Cape':{a:12,up:2,mq:4,amax:18,dur:1200,wt:4,spd:'0'},
+'Asksvin Cloak':{a:1,up:1,mq:4,amax:4,dur:1500,wt:4,spd:'0'},
+'Hood of the Vanguard':{a:34,up:2,mq:4,amax:40,dur:1000,wt:1,spd:'0'},
+'Chestpiece of the Vanguard':{a:34,up:2,mq:4,amax:40,dur:1000,wt:5,spd:'0',res:'Resists frost'},
+'Trousers of the Vanguard':{a:34,up:2,mq:4,amax:40,dur:1000,wt:5,spd:'0'},
+'Headdress of the Caller':{a:22,up:2,mq:4,amax:28,dur:1000,wt:1,spd:'0'},
+'Robes of the Caller':{a:22,up:2,mq:4,amax:28,dur:1000,wt:5,spd:'-2%'},
+'Trousers of the Caller':{a:22,up:2,mq:4,amax:28,dur:1000,wt:5,spd:'-2%'},
+'Helmet of the Protector':{a:44,up:2,mq:4,amax:50,dur:1000,wt:1,spd:'0'},
+'Breastplate of the Protector':{a:44,up:2,mq:4,amax:50,dur:1000,wt:5,spd:'0'},
+'Trousers of the Protector':{a:44,up:2,mq:4,amax:50,dur:1000,wt:5,spd:'0'},
+'Moose Hide Cape':{a:12,up:2,mq:4,amax:18,dur:1200,wt:4,spd:'0'},
+'Cape of the Caller':{a:12,up:2,mq:4,amax:18,dur:1200,wt:4,spd:'0'}
+
+};
+ARMOR.forEach(a=>Object.assign(a,ARMOR_STATS[a.n]||{}));
 const FOOD=[
 /* foraged & raw */
 {n:'Raspberries',c:'Foraged & raw',b:'meadows',hp:7,st:20,dur:'10 min',m:{},s:'Bushes'},
@@ -743,7 +835,11 @@ function grouped(list,cats,fn,lede,prefix){
    ===================================================================== */
 const R={
  weapons:()=>grouped(WEAPONS,null,w=>row(w,dmg(w.d)),LEDE.weapons,'w-'),
- armor:()=>grouped(ARMOR,null,a=>row(a,a.a!=null?`<div class="stats"><span><em>armor</em> ${esc(a.a)}</span></div>`:''),LEDE.armor,'a-'),
+ armor:()=>{
+   const g=grouped(ARMOR,null,a=>row(a,armorStats(a)),LEDE.armor,'a-');
+   const i=g.indexOf('</p>')+4;
+   return g.slice(0,i)+setTable()+g.slice(i);
+ },
  food:()=>{
   let html=`<p class="lede">${LEDE.food}</p>`,any=false;
   [...new Set(FOOD.map(f=>f.c))].forEach(c=>{
@@ -803,6 +899,31 @@ const R={
  calc:()=>renderCalc()
 };
 
+function armorStats(a){
+  if(a.a==null) return '';
+  const p=[`<span><em>armor</em> ${esc(a.a)}${a.amax!=null&&a.amax!==a.a?` → ${esc(a.amax)}${a.mq?` <em>(Q${esc(a.mq)})</em>`:''}`:''}</span>`];
+  if(a.up!=null) p.push(`<span><em>+${esc(a.up)}/lvl</em></span>`);
+  if(a.wt!=null) p.push(`<span><em>weight</em> ${esc(a.wt)}</span>`);
+  if(a.dur!=null) p.push(`<span><em>durability</em> ${esc(a.dur)}</span>`);
+  if(a.spd&&a.spd!=='0') p.push(`<span><em>speed</em> ${esc(a.spd)}</span>`);
+  return `<div class="stats">${p.join('')}</div>${a.res?`<div class="note" style="margin:2px 0 0">${esc(a.res)}</div>`:''}`;
+}
+const pct=s=>{const m=String(s||'').replace('−','-').match(/-?\d+(\.\d+)?/);return m?parseFloat(m[0]):0;};
+function setTable(){
+  const byName=Object.fromEntries(ARMOR.map(a=>[a.n,a]));
+  const l=SETS.filter(x=>visible({...x,m:{}})).sort(byTier);
+  if(!l.length) return '';
+  const rows=l.map(x=>{
+    const ps=x.p.map(n=>byName[n]).filter(Boolean);
+    const q1=ps.every(p=>p.a!=null)?ps.reduce((t,p)=>t+p.a,0):null;
+    const mx=ps.every(p=>p.amax!=null)?ps.reduce((t,p)=>t+p.amax,0):null;
+    const sp=ps.every(p=>p.spd!=null)?ps.reduce((t,p)=>t+pct(p.spd),0):null;
+    return `<tr><td>${dot(x.b)}<b>${esc(x.n)}</b><div class="dim" style="font-size:14px;margin-left:14px">${esc(bio(x.b).n)} · ${ps.length} pieces</div></td>
+      <td class="n">${q1??'—'}</td><td class="n">${mx??'—'}</td><td class="n">${sp==null?'—':sp?sp+'%':'0'}</td>
+      <td class="dim">${esc(x.bonus||'—')}</td></tr>`;}).join('');
+  return section('a-sets','Full sets','totals of every piece — capes counted only where they are part of the set',
+    `<div class="tw"><table><tr><th>Set</th><th>Armor Q1</th><th>Armor max</th><th>Speed</th><th>Set bonus</th></tr>${rows}</table></div>`,l.length);
+}
 function minis(){
   const l=MINIBOSSES.filter(visible).sort(byTier);
   return l.length?`<div style="margin-top:40px">`+section('b-mini','Minibosses','dungeon bosses — no Forsaken Power',
