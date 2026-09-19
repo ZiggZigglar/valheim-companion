@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Valheim Companion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0b0e0f; --stone:#12171a; --stone2:#182024; --rule:#29333a;
+  --bone:#f0ebe1; --lichen:#b2b9b3; --faint:#6b767c; --frost:#b9d6e3;
+  --meadows:#9db36a; --blackforest:#5e8c6a; --swamp:#9a825c; --mountain:#b8c7d4;
+  --plains:#cfae5e; --mistlands:#9587b8; --ashlands:#c96a4d; --deepnorth:#dfe9ee; --ocean:#5b8fa3;
+  --display:"Big Shoulders Display","Arial Narrow",sans-serif;
+  --body:"Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",Consolas,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--ink);color:var(--bone);font:17px/1.6 var(--body)}
+button,input{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--frost);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+
+/* ---------- header ---------- */
+header{position:sticky;top:0;z-index:20;background:var(--ink);padding:18px 32px 0}
+.top{display:flex;align-items:baseline;gap:24px;flex-wrap:wrap}
+h1{font:800 30px/1 var(--display);letter-spacing:.06em;text-transform:uppercase;margin:0}
+h1 span{color:var(--lichen);font-weight:600}
+#search{flex:1;min-width:180px;max-width:380px;background:transparent;border:0;
+  border-bottom:1px solid var(--rule);padding:6px 0;font-size:16px}
+#search::placeholder{color:var(--faint)}
+#search:focus{outline:none;border-color:var(--frost)}
+.tools{margin-left:auto;display:flex;gap:20px;font-size:15px}
+.link{background:none;border:0;padding:0;cursor:pointer;color:var(--lichen)}
+.link:hover{color:var(--bone)}
+.link b{font:500 12px var(--mono);color:var(--frost);margin-left:4px}
+
+/* the progression rail — signature */
+.rail{display:grid;grid-template-columns:repeat(var(--n),1fr);gap:3px;margin:18px 0 0}
+.seg{background:none;border:0;padding:0 0 8px;cursor:pointer;text-align:left;color:var(--faint);
+  font:600 14px/1 var(--display);letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis;transition:color .15s}
+.seg::before{content:"";display:block;height:4px;margin-bottom:7px;background:var(--rule);
+  transition:background .15s}
+.seg:hover{color:var(--lichen)}
+.seg.on{color:var(--bone)}
+.seg.on::before{background:var(--c)}
+.rail.none .seg::before{background:color-mix(in srgb,var(--c) 45%,var(--rule))}
+.seg.ocean{margin-left:10px}
+
+nav{display:flex;gap:26px;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid var(--rule);margin-top:6px}
+nav::-webkit-scrollbar{display:none}
+nav button{background:none;border:0;padding:12px 0 11px;cursor:pointer;color:var(--lichen);
+  font-size:16px;white-space:nowrap;border-bottom:2px solid transparent;margin-bottom:-1px}
+nav button:hover{color:var(--bone)}
+nav button.on{color:var(--bone);border-bottom-color:var(--bone)}
+
+/* ---------- content ---------- */
+main{padding:28px 32px 80px;max-width:1400px}
+.tab{display:none}.tab.on{display:block}
+.lede{color:var(--lichen);max-width:70ch;margin:0 0 34px;font-size:16.5px;line-height:1.65}
+.lede b{color:var(--bone);font-weight:700}
+
+details.grp{margin-bottom:34px}
+details.grp>summary{list-style:none;cursor:pointer;display:flex;align-items:baseline;gap:12px;
+  padding-bottom:10px;border-bottom:1px solid var(--rule);margin-bottom:6px}
+details.grp>summary::-webkit-details-marker{display:none}
+summary h2{font:800 24px/1 var(--display);letter-spacing:.06em;text-transform:uppercase;margin:0}
+summary .sub{color:var(--lichen);font-size:15px}
+summary .cnt{margin-left:auto;font:14px var(--mono);color:var(--faint)}
+details.grp:not([open])>summary h2{color:var(--lichen)}
+
+.rows{display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));column-gap:48px}
+.row{position:relative;padding:18px 40px 18px 0;border-bottom:1px solid color-mix(in srgb,var(--rule) 55%,transparent)}
+.row h3{margin:0;font-size:18px;font-weight:700;display:flex;align-items:center;gap:10px}
+.where{display:flex;align-items:center;gap:10px;margin:4px 0 9px;font-size:14.5px;color:var(--lichen)}
+.mini{display:inline-grid;grid-auto-flow:column;gap:2px}
+.mini i{width:9px;height:4px;background:var(--rule)}
+.mini i.p{background:color-mix(in srgb,var(--c) 35%,var(--rule))}
+.mini i.h{background:var(--c)}
+.stats{font:15px/1.7 var(--mono);color:var(--bone);display:flex;flex-wrap:wrap;gap:4px 14px}
+.stats span em{font-style:normal;color:var(--lichen)}
+.mats{font-size:15px;color:var(--lichen);margin-top:6px;line-height:1.6}
+.mats b{color:var(--bone);font:500 14.5px var(--mono)}
+.note{font-size:15px;color:var(--lichen);margin-top:8px}
+.add{position:absolute;top:16px;right:0;width:30px;height:30px;font-size:17px;border:1px solid var(--rule);
+  background:none;border-radius:50%;cursor:pointer;color:var(--lichen);opacity:0;transition:opacity .15s}
+.row:hover .add,.add:focus-visible{opacity:1}
+.add:hover{color:var(--bone);border-color:var(--bone)}
+@media (hover:none){.add{opacity:1}}
+
+/* tables */
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:15.5px;line-height:1.55}
+th{text-align:left;font:600 14px var(--display);letter-spacing:.1em;text-transform:uppercase;
+  color:var(--lichen);padding:8px 14px 8px 0;border-bottom:1px solid var(--rule)}
+td{padding:13px 18px 13px 0;border-bottom:1px solid color-mix(in srgb,var(--rule) 55%,transparent);vertical-align:top}
+td.n{font-family:var(--mono);white-space:nowrap}
+td .dim{color:var(--lichen)}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--c);margin-right:7px;vertical-align:1px}
+.mod{font:14.5px var(--mono)}
+.mod.w{color:var(--meadows)}.mod.r{color:var(--plains)}.mod.i{color:var(--ashlands)}
+
+/* boss */
+.boss{display:grid;grid-template-columns:200px 1fr;gap:6px 32px;padding:22px 0;
+  border-bottom:1px solid color-mix(in srgb,var(--rule) 55%,transparent)}
+.boss h3{font:800 30px/1 var(--display);letter-spacing:.05em;text-transform:uppercase;margin:0}
+.boss .bio{font-size:14.5px;color:var(--lichen);margin-top:6px;display:flex;align-items:center}
+.kv{display:grid;grid-template-columns:120px 1fr;gap:10px 20px;font-size:16px}
+.kv dt{color:var(--lichen);font-size:14.5px;padding-top:2px}
+.kv dd{margin:0}
+
+/* calc */
+.calc{display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:40px;align-items:start}
+.calc h2{font:800 18px/1 var(--display);letter-spacing:.06em;text-transform:uppercase;margin:0 0 12px;
+  padding-bottom:10px;border-bottom:1px solid var(--rule)}
+.q{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid color-mix(in srgb,var(--rule) 55%,transparent)}
+.q input{width:54px;background:transparent;border:1px solid var(--rule);padding:4px 6px;text-align:center;font-family:var(--mono)}
+.q span{flex:1}
+.empty{color:var(--lichen);font-style:italic;font-size:14px;padding:8px 0}
+.nores{color:var(--lichen);padding:40px 0;font-style:italic}
+
+footer{color:var(--lichen);font-size:14.5px;padding:24px 32px 40px;border-top:1px solid var(--rule);max-width:1400px;line-height:1.7}
+footer a{color:var(--frost)}
+#flash{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--bone);color:var(--ink);
+  padding:8px 16px;font-size:13px;font-weight:700;display:none;z-index:40}
+
+.skills{display:flex;flex-wrap:wrap;gap:10px 32px;padding:14px 0 4px;font-size:17px}
+.news{grid-template-columns:170px 1fr;gap:18px 28px;max-width:960px;font-size:17px}
+.news dt{font:600 15px/1.5 var(--display);letter-spacing:.1em;text-transform:uppercase;color:var(--lichen)}
+@media (max-width:1000px){.calc{grid-template-columns:1fr}}
+@media (max-width:720px){
+  header{padding:14px 16px 0} main{padding:22px 16px 60px} footer{padding:20px 16px}
+  .rail{display:flex;overflow-x:auto;scrollbar-width:none;gap:3px}
+  .rail::-webkit-scrollbar{display:none}
+  .seg{flex:0 0 76px}
+  .rows{grid-template-columns:1fr}
+  .boss{grid-template-columns:1fr}
+  .kv{grid-template-columns:90px 1fr}
+  .tools{margin-left:0}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="top">
+    <h1>Valheim <span>Companion</span></h1>
+    <input id="search" type="search" placeholder="Search — press / to focus" aria-label="Search everything">
+    <div class="tools">
+      <button class="link" onclick="allSections(true)">Expand all</button>
+      <button class="link" onclick="allSections(false)">Collapse all</button>
+      <button class="link" onclick="go('calc')">Build list<b id="cartCount">0</b></button>
+    </div>
+  </div>
+  <div class="rail" id="rail" role="group" aria-label="Filter by biome"></div>
+  <nav id="nav" aria-label="Sections"></nav>
+</header>
+<main></main>
+<footer>
+  Updated for Valheim <b>1.0</b> (released Sept 9, 2026). Every number here was checked against the Valheim wiki
+  (valheim.fandom.com / valheim.weirdgloop.org) and the official 1.0 patch notes in September 2026. Weapon damage and armor
+  are quality 1; shields show block armor at skill 0. An item's biome is the earliest one where you can get
+  everything it needs. Deep North coverage is thin because the wikis are still catching up: recipes and enemy
+  resistances that aren't published yet have been left out rather than guessed. Arrows without a listed recipe haven't been re-verified.
+  Click a biome in the bar above to filter; click it again to clear.
+</footer>
+<div id="flash" role="status"></div>
+<script>
+const BIOMES={
+ meadows:{n:'Meadows',t:1},blackforest:{n:'Black Forest',t:2},swamp:{n:'Swamp',t:3},mountain:{n:'Mountain',t:4},
+ plains:{n:'Plains',t:5},mistlands:{n:'Mistlands',t:6},ashlands:{n:'Ashlands',t:7},deepnorth:{n:'Deep North',t:8},
+ ocean:{n:'Ocean',t:3}};
+const LEDE={
+ news:'Valheim left early access with 1.0. The short version: one new biome, one final boss, a pile of gear, <b>no new skills</b>. Everything else on this page has been re-checked against current data.',
+ weapons:'Damage shown is <b>quality 1</b>. Deep North weapons are cast at the Black Forge and hardened at the Frost Foundry. Staffs run on eitr, so you need eitr food first.',
+ armor:'Armor is <b>quality 1</b>. Set bonuses need every piece. <b>Trinkets</b> go in their own slot, one at a time.',
+ food:'Three slots, three <b>different</b> foods. The bonus holds near full for most of the timer, then drops off fast near the end — about 66% left at a quarter of the time remaining. Eitr only comes from eitr foods.',
+ mead:'Brew the base at the <b>Mead Ketill</b>, then ferment it for two in-game days. Most bases make 6. Minor/medium/major potions share a 2-minute cooldown.',
+ bosses:'Hang a trophy at the Sacrificial Stones to unlock its power. Powers last <b>5 minutes</b> on a shared <b>20-minute</b> cooldown and reach allies within 10 m.',
+ weak:'Skeletons: blunt or fire. Draugr <b>resist</b> fire and ghosts only resist arrows — neither is immune. Nearly every Ashlands enemy is weak to spirit. Deep North resistances aren\'t published yet.',
+ stations:'Comfort sets how long <b>Rested</b> lasts: 8 minutes at comfort 1, plus a minute per level, 22 max (24 near a Maypole and Yule Tree). Rested boosts health, stamina and eitr regen.',
+ skills:'24 skills, each capped at 100. <b>None were added in 1.0.</b>'
+};
+const WEAPONS=[
+/* swords */
+{n:'Bronze Sword',c:'Swords',b:'blackforest',d:[['slash',35]],m:{'Bronze':8,'Leather scraps':2,'Wood':2},s:'Forge 1'},
+{n:'Iron Sword',c:'Swords',b:'swamp',d:[['slash',55]],m:{'Iron':20,'Leather scraps':3,'Wood':2},s:'Forge 2'},
+{n:'Silver Sword',c:'Swords',b:'mountain',d:[['slash',75],['spirit',30]],m:{'Silver':40,'Iron':5,'Leather scraps':3,'Wood':2},s:'Forge 3'},
+{n:'Black Metal Sword',c:'Swords',b:'plains',d:[['slash',95]],m:{'Black metal':20,'Fine wood':2,'Linen thread':5},s:'Forge 4'},
+{n:'Krom',c:'Swords',b:'mistlands',d:[['slash',150]],m:{'Iron':30,'Bronze':20,'Scale hide':5},s:'Black Forge',note:'Two-handed.'},
+{n:'Nidhögg',c:'Swords',b:'ashlands',d:[['slash',135]],m:{'Charred bone':3,'Flametal':12,'Asksvin hide':2},s:'Black Forge',note:'Can be upgraded with gemstones.'},
+{n:'Dyrnwyn',c:'Swords',b:'ashlands',d:[['slash',145],['fire',10]],m:{'Dyrnwyn hilt fragment':1,'Dyrnwyn blade fragment':1,'Dyrnwyn tip fragment':1,'Flametal':20,'Bloodstone':1},s:'Black Forge'},
+{n:'Slayer',c:'Swords',b:'ashlands',d:[['slash',170]],m:{'Flametal':30,'Asksvin hide':5,'Morgen sinew':3},s:'Black Forge',note:'Two-handed.'},
+{n:'Nord Sword',c:'Swords',b:'deepnorth',d:[['slash',170]],m:{'Bloodgold':20,'Mould: Nord Sword':1,'Timberwood':10,'Liquid frost':5},s:'Black Forge 4 → Frost Foundry',note:'Cast at the Black Forge, hardened at the Frost Foundry.'},
+{n:'Nord Greatsword',c:'Swords',b:'deepnorth',d:[['slash',210]],m:{'Cast Nord Greatsword':1,'Liquid frost':5},s:'Frost Foundry',note:'Two-handed.'},
+/* axes */
+{n:'Flint Axe',c:'Axes',b:'meadows',d:[['slash',20],['chop',30]],m:{'Wood':4,'Flint':6},s:'Workbench'},
+{n:'Bronze Axe',c:'Axes',b:'blackforest',d:[['slash',40],['chop',40]],m:{'Wood':4,'Bronze':8,'Leather scraps':2},s:'Forge'},
+{n:'Iron Axe',c:'Axes',b:'swamp',d:[['slash',60],['chop',50]],m:{'Wood':4,'Iron':20,'Leather scraps':2},s:'Forge'},
+{n:'Battleaxe',c:'Axes',b:'swamp',d:[['slash',70],['chop',40]],m:{'Ancient bark':30,'Iron':35,'Leather scraps':4},s:'Forge',note:'Two-handed.'},
+{n:'Crystal Battleaxe',c:'Axes',b:'mountain',d:[['slash',90],['spirit',30],['chop',50]],m:{'Ancient bark':40,'Silver':30,'Crystal':10},s:'Forge',note:'Two-handed.'},
+{n:'Black Metal Axe',c:'Axes',b:'plains',d:[['slash',100],['chop',60]],m:{'Fine wood':6,'Black metal':20,'Linen thread':5},s:'Forge'},
+{n:'Black Metal Battleaxe',c:'Axes',b:'plains',d:[['slash',110],['chop',60]],m:{'Linen thread':5,'Black metal':30,'Fine wood':10},s:'Forge',note:'Two-handed.'},
+{n:'Jotun Bane',c:'Axes',b:'mistlands',d:[['slash',80],['poison',40],['chop',70]],m:{'Yggdrasil wood':5,'Iron':15,'Bilebag':3,'Refined eitr':10},s:'Black Forge',note:'Can fell ancient trees and Yggdrasil shoots.'},
+{n:'Skull Splittur',c:'Axes',b:'mistlands',d:[['slash',130],['chop',70]],m:{'Yggdrasil wood':15,'Iron':30,'Refined eitr':10},s:'Black Forge',note:'Two-handed.'},
+{n:'Berserkir Axes',c:'Axes',b:'ashlands',d:[['slash',140],['chop',80]],m:{'Charred bone':15,'Flametal':24,'Asksvin hide':3},s:'Black Forge',note:'Dual-wielded.'},
+{n:'Nord Axe',c:'Axes',b:'deepnorth',d:[['slash',176],['chop',90]],m:{'Bloodgold':20,'Timberwood':10,'Liquid frost':5},s:'Black Forge 4 → Frost Foundry'},
+/* clubs */
+{n:'Club',c:'Clubs & sledges',b:'meadows',d:[['blunt',12]],m:{'Wood':6},s:'No station'},
+{n:'Stagbreaker',c:'Clubs & sledges',b:'blackforest',d:[['blunt',20],['pierce',5]],m:{'Core wood':20,'Deer trophy':5,'Leather scraps':2},s:'Workbench 2',note:'Two-handed area attack.'},
+{n:'Bronze Mace',c:'Clubs & sledges',b:'blackforest',d:[['blunt',35]],m:{'Wood':4,'Bronze':8,'Leather scraps':3},s:'Forge'},
+{n:'Iron Mace',c:'Clubs & sledges',b:'swamp',d:[['blunt',55]],m:{'Wood':4,'Iron':20,'Leather scraps':3},s:'Forge'},
+{n:'Iron Sledge',c:'Clubs & sledges',b:'swamp',d:[['blunt',55]],m:{'Ancient bark':10,'Iron':30,'Ymir flesh':4,'Draugr elite trophy':1},s:'Forge',note:'Two-handed. Ymir flesh is bought from Haldor.'},
+{n:'Frostner',c:'Clubs & sledges',b:'mountain',d:[['blunt',35],['frost',40],['spirit',20]],m:{'Ancient bark':10,'Silver':30,'Ymir flesh':5,'Freeze gland':5},s:'Forge'},
+{n:'Porcupine',c:'Clubs & sledges',b:'plains',d:[['blunt',50],['pierce',45]],m:{'Fine wood':5,'Iron':20,'Needle':5,'Linen thread':10},s:'Forge 4'},
+{n:'Demolisher',c:'Clubs & sledges',b:'mistlands',d:[['blunt',145]],m:{'Yggdrasil wood':10,'Iron':20,'Refined eitr':10},s:'Black Forge',note:'Two-handed.'},
+{n:'Flametal Mace',c:'Clubs & sledges',b:'ashlands',d:[['blunt',135]],m:{'Charred bone':10,'Flametal':15,'Sulfur':5,'Asksvin hide':3},s:'Black Forge'},
+{n:'Nord Mace',c:'Clubs & sledges',b:'deepnorth',d:[['blunt',170]],m:{'Bloodgold':20,'Timberwood':10,'Liquid frost':5},s:'Black Forge 4 → Frost Foundry'},
+/* spears */
+{n:'Flint Spear',c:'Spears',b:'meadows',d:[['pierce',20]],m:{'Wood':5,'Flint':10,'Leather scraps':2},s:'Workbench',note:'Throwable.'},
+{n:'Bronze Spear',c:'Spears',b:'blackforest',d:[['pierce',35]],m:{'Wood':5,'Bronze':6,'Deer hide':2},s:'Forge'},
+{n:'Ancient Bark Spear',c:'Spears',b:'swamp',d:[['pierce',55]],m:{'Troll hide':4,'Iron':10,'Ancient bark':10},s:'Forge 3'},
+{n:'Fang Spear',c:'Spears',b:'mountain',d:[['pierce',75]],m:{'Ancient bark':10,'Wolf fang':4,'Leather scraps':2,'Silver':2},s:'Forge'},
+{n:'Carapace Spear',c:'Spears',b:'mistlands',d:[['pierce',115]],m:{'Yggdrasil wood':10,'Carapace':4,'Mandible':2},s:'Black Forge'},
+{n:'Splitnir',c:'Spears',b:'ashlands',d:[['pierce',135]],m:{'Ashwood':10,'Flametal':6,'Asksvin hide':2,'Bonemaw tooth':3},s:'Black Forge'},
+{n:'Nord Spear',c:'Spears',b:'deepnorth',d:[['pierce',170]],m:{'Bloodgold':20,'Timberwood':10,'Liquid frost':5},s:'Black Forge 4 → Frost Foundry'},
+/* atgeirs */
+{n:'Bronze Atgeir',c:'Atgeirs',b:'blackforest',d:[['pierce',45]],m:{'Wood':10,'Bronze':8,'Leather scraps':2},s:'Forge',note:'Secondary attack is a 360° sweep.'},
+{n:'Iron Atgeir',c:'Atgeirs',b:'swamp',d:[['pierce',65]],m:{'Wood':10,'Iron':30,'Leather scraps':2},s:'Forge'},
+{n:'Black Metal Atgeir',c:'Atgeirs',b:'plains',d:[['pierce',105]],m:{'Fine wood':10,'Black metal':30,'Linen thread':5},s:'Forge 4'},
+{n:'Himminafl',c:'Atgeirs',b:'mistlands',d:[['pierce',85],['lightning',40]],m:{'Yggdrasil wood':10,'Refined eitr':15,'Silver':5,'Mandible':2},s:'Black Forge'},
+{n:'Nord Atgeir',c:'Atgeirs',b:'deepnorth',d:[['pierce',182]],m:{'Cast Nord Atgeir':1,'Liquid frost':5},s:'Black Forge 4 → Frost Foundry'},
+/* knives */
+{n:'Flint Knife',c:'Knives',b:'meadows',d:[['slash',5],['pierce',5]],m:{'Wood':2,'Flint':4,'Leather scraps':2},s:'Workbench 1'},
+{n:'Copper Knife',c:'Knives',b:'blackforest',d:[['slash',12],['pierce',12]],m:{'Wood':2,'Copper':8},s:'Forge'},
+{n:'Abyssal Razor',c:'Knives',b:'ocean',d:[['slash',20],['pierce',20]],m:{'Fine wood':4,'Chitin':20,'Leather scraps':2},s:'Workbench'},
+{n:'Silver Knife',c:'Knives',b:'mountain',d:[['slash',25],['pierce',25],['spirit',12]],m:{'Wood':2,'Silver':10,'Leather scraps':3,'Iron':2},s:'Forge'},
+{n:'Black Metal Knife',c:'Knives',b:'plains',d:[['slash',34],['pierce',34]],m:{'Fine wood':4,'Black metal':10,'Linen thread':5},s:'Forge'},
+{n:'Skoll and Hati',c:'Knives',b:'mistlands',d:[['slash',45],['pierce',45]],m:{'Fine wood':4,'Iron':10,'Black metal':10},s:'Black Forge',note:'Dual-wielded.'},
+/* fists */
+{n:'Paws of the Bear',c:'Fists',b:'blackforest',d:[['slash',25]],m:{'Bear hide':2,'Bear paw':2,'Leather scraps':4},s:'Workbench',note:'×6 backstab.'},
+{n:'Flesh Rippers',c:'Fists',b:'mountain',d:[['slash',60]],m:{'Fenris hair':10,'Fenris claw':6,'Silver':10},s:'Forge 3',note:'×6 backstab.'},
+{n:'Vilebone Maulclaws',c:'Fists',b:'plains',d:[['pierce',60],['slash',20]],m:{'Bear hide':2,'Vile ribcage':2,'Black metal':2,'Linen thread':4},s:'Forge 3'},
+/* bows */
+{n:'Crude Bow',c:'Bows',b:'meadows',d:[['pierce',22]],m:{'Wood':10,'Leather scraps':8},s:'Workbench'},
+{n:'Finewood Bow',c:'Bows',b:'blackforest',d:[['pierce',32]],m:{'Fine wood':10,'Core wood':10,'Deer hide':2},s:'Workbench 1'},
+{n:'Huntsman Bow',c:'Bows',b:'swamp',d:[['pierce',42]],m:{'Fine wood':10,'Iron':20,'Feathers':10,'Deer hide':2},s:'Forge 1'},
+{n:'Draugr Fang',c:'Bows',b:'mountain',d:[['pierce',47],['poison',5]],m:{'Ancient bark':10,'Silver':20,'Deer hide':2,'Guck':10},s:'Forge'},
+{n:'Spinesnap',c:'Bows',b:'mistlands',d:[['pierce',72],['spirit',5]],m:{'Fine wood':10,'Bone fragments':40,'Refined eitr':10},s:'Black Forge'},
+{n:'Ash Fang',c:'Bows',b:'ashlands',d:[['pierce',82]],m:{'Ashwood':10,'Charred bone':16,'Flametal':5,'Bonemaw tooth':5},s:'Black Forge'},
+{n:'Nord Bow',c:'Bows',b:'deepnorth',d:[['pierce',100],['spirit',10]],m:{'Cast Nord Bow':1,'Liquid frost':5},s:'Black Forge 4 → Frost Foundry'},
+/* crossbows */
+{n:'Arbalest',c:'Crossbows',b:'mistlands',d:[['pierce',200]],m:{'Wood':10,'Iron':8,'Root':4},s:'Black Forge'},
+{n:'Ripper',c:'Crossbows',b:'ashlands',d:[['pierce',220],['chop',160]],m:{'Ashwood':10,'Flametal':8,'Morgen sinew':2,'Bonemaw tooth':4},s:'Black Forge'},
+{n:'Nord Crossbow',c:'Crossbows',b:'deepnorth',d:[['pierce',264],['chop',180]],m:{'Cast Nord Crossbow':1,'Liquid frost':5},s:'Black Forge 4 → Frost Foundry'},
+/* staffs */
+{n:'Staff of Embers',c:'Staffs',b:'mistlands',d:[['blunt',120],['fire',120]],m:{'Yggdrasil wood':20,'Surtling core':4,'Refined eitr':16},s:'Galdr Table',note:'35 eitr per cast.'},
+{n:'Staff of Frost',c:'Staffs',b:'mistlands',d:[['frost',30]],m:{'Yggdrasil wood':20,'Freeze gland':4,'Refined eitr':16},s:'Galdr Table',note:'5 eitr per cast.'},
+{n:'Staff of Protection',c:'Staffs',b:'mistlands',d:[],m:{'Yggdrasil wood':20,'Blood clot':4,'Refined eitr':16},s:'Galdr Table',note:'Blood magic. Barrier absorbs 200 damage (700 at skill 100). 60 eitr and 40% of current HP per cast.'},
+{n:'Dead Raiser',c:'Staffs',b:'mistlands',d:[],m:{'Bone fragments':10,'Refined eitr':16,'Skeleton trophy':4},s:'Galdr Table',note:'Blood magic. Summons skeletons. 100 eitr and 40% of current HP per cast.'},
+{n:'Staff of Fracturing',c:'Staffs',b:'ashlands',d:[['blunt',12],['fire',12]],m:{'Charred bone':15,'Ashwood':5,'Proustite powder':8},s:'Galdr Table',note:'Fires 12 exploding shards. 30 eitr per cast.'},
+{n:'Staff of the Wild',c:'Staffs',b:'ashlands',d:[['blunt',20],['poison',20]],m:{'Ashwood':15,'Fiddlehead':10,'Celestial feather':3,'Jade':1},s:'Galdr Table',note:'55 eitr per cast.'},
+{n:'Dundr',c:'Staffs',b:'ashlands',d:[['lightning',20]],m:{'Ashwood':10,'Flametal':4,'Celestial feather':3,'Bloodstone':1},s:'Galdr Table 2',note:'12 bolts per attack, 25 eitr.'},
+{n:'Trollstav',c:'Staffs',b:'ashlands',d:[['fire',300],['chop',100],['pickaxe',100]],m:{'Charred bone':15,'Troll trophy':1,'Flametal':3,'Bloodstone':1},s:'Galdr Table',note:'120 eitr per cast.'},
+/* shields — block armor at quality 1, skill 0 */
+{n:'Wood Shield',c:'Shields',b:'meadows',d:[['block',6]],m:{'Wood':10,'Resin':4,'Leather scraps':4},s:'Workbench',note:'Round shield.'},
+{n:'Bronze Buckler',c:'Shields',b:'blackforest',d:[['block',16]],m:{'Bronze':10,'Wood':4},s:'Forge',note:'Buckler.'},
+{n:'Iron Buckler',c:'Shields',b:'swamp',d:[['block',28]],m:{'Iron':10,'Ancient bark':4},s:'Forge',note:'Buckler.'},
+{n:'Banded Shield',c:'Shields',b:'swamp',d:[['block',42]],m:{'Fine wood':10,'Iron':8},s:'Forge',note:'Round shield.'},
+{n:'Iron Tower Shield',c:'Shields',b:'swamp',d:[['block',52]],m:{'Fine wood':15,'Iron':10},s:'Forge',note:'Tower shield.'},
+{n:'Silver Shield',c:'Shields',b:'mountain',d:[['block',60]],m:{'Fine wood':10,'Silver':8},s:'Forge',note:'Round shield.'},
+{n:'Black Metal Shield',c:'Shields',b:'plains',d:[['block',78]],m:{'Fine wood':10,'Black metal':8,'Chain':5},s:'Forge',note:'Round shield.'},
+{n:'Black Metal Tower Shield',c:'Shields',b:'plains',d:[['block',104]],m:{'Fine wood':15,'Black metal':10,'Chain':7},s:'Forge',note:'Tower shield.'},
+/* arrows */
+{n:'Wood Arrow',c:'Arrows',b:'meadows',d:[['pierce',22]]},
+{n:'Flinthead Arrow',c:'Arrows',b:'meadows',d:[['pierce',27]]},
+{n:'Fire Arrow',c:'Arrows',b:'blackforest',d:[['pierce',11],['fire',22]],m:{'Wood':8,'Resin':8,'Feathers':2},s:'Workbench 2',note:'Yields 20.'},
+{n:'Bronzehead Arrow',c:'Arrows',b:'blackforest',d:[['pierce',32]]},
+{n:'Ironhead Arrow',c:'Arrows',b:'swamp',d:[['pierce',42]]},
+{n:'Poison Arrow',c:'Arrows',b:'swamp',d:[['pierce',26],['poison',52]]},
+{n:'Obsidian Arrow',c:'Arrows',b:'mountain',d:[['pierce',52]]},
+{n:'Frost Arrow',c:'Arrows',b:'mountain',d:[['pierce',26],['frost',52]]},
+{n:'Silver Arrow',c:'Arrows',b:'mountain',d:[['pierce',52],['spirit',20]]},
+{n:'Needle Arrow',c:'Arrows',b:'plains',d:[['pierce',62]]},
+{n:'Carapace Arrow',c:'Arrows',b:'mistlands',d:[['pierce',72]],m:{'Carapace':4,'Feathers':2,'Wood':8},s:'Black Forge',note:'Yields 20.'},
+{n:'Charred Arrow',c:'Arrows',b:'ashlands',d:[['pierce',82]],m:{'Charred bone':4,'Feathers':2,'Ashwood':8},s:'Black Forge',note:'Yields 20.'},
+/* bolts */
+{n:'Bone Bolt',c:'Bolts',b:'mistlands',d:[['pierce',32]],m:{'Bone fragments':8,'Feathers':2},s:'Black Forge',note:'Yields 20.'},
+{n:'Iron Bolt',c:'Bolts',b:'mistlands',d:[['pierce',42]],m:{'Wood':8,'Iron':1,'Feathers':2},s:'Black Forge',note:'Yields 20.'},
+{n:'Black Metal Bolt',c:'Bolts',b:'mistlands',d:[['pierce',62]]},
+{n:'Carapace Bolt',c:'Bolts',b:'mistlands',d:[['pierce',72]],m:{'Wood':8,'Carapace':2,'Feathers':2},s:'Black Forge',note:'Yields 20.'},
+{n:'Charred Bolt',c:'Bolts',b:'ashlands',d:[['pierce',82]],m:{'Ashwood':8,'Charred bone':2,'Feathers':2},s:'Black Forge',note:'Yields 20.'},
+/* bombs */
+{n:'Ooze Bomb',c:'Bombs',b:'swamp',d:[['blunt',5],['poison',40]],m:{'Leather scraps':5,'Ooze':5,'Resin':3},s:'Workbench',note:'Yields 5. Poison cloud, 4 m radius, 10 s.'},
+{n:'Basalt Bomb',c:'Bombs',b:'ashlands',d:[],m:{'Asksvin hide':1,'Asksvin bladder':1,'Proustite powder':3},s:'Workbench',note:'Yields 5. Heavy knockback.'},
+/* pickaxes */
+{n:'Antler Pickaxe',c:'Pickaxes',b:'meadows',d:[['pierce',18],['pickaxe',18]],m:{'Wood':10,'Hard antler':1},s:'Workbench 1',note:'Mines copper and tin.'},
+{n:'Bronze Pickaxe',c:'Pickaxes',b:'blackforest',d:[['pierce',25],['pickaxe',25]],m:{'Core wood':3,'Bronze':10},s:'Forge'},
+{n:'Iron Pickaxe',c:'Pickaxes',b:'swamp',d:[['pierce',33],['pickaxe',33]],m:{'Core wood':3,'Iron':20},s:'Forge',note:'Mines silver and obsidian.'},
+{n:'Black Metal Pickaxe',c:'Pickaxes',b:'mistlands',d:[['pierce',49],['pickaxe',49]],m:{'Yggdrasil wood':3,'Black metal':25},s:'Forge'},
+/* tools */
+{n:'Hammer',c:'Tools',b:'meadows',d:[],m:{'Wood':3,'Stone':2},s:'No station',note:'Build tool.'},
+{n:'Hoe',c:'Tools',b:'meadows',d:[],m:{'Wood':5,'Stone':2},s:'Workbench 1',note:'Levels and paves terrain.'},
+{n:'Torch',c:'Tools',b:'meadows',d:[['fire',15]],m:{'Wood':1,'Resin':1},s:'No station'},
+{n:'Butcher Knife',c:'Tools',b:'blackforest',d:[],m:{'Wood':2,'Tin':4},s:'Forge',note:'Kills tamed animals only.'},
+{n:'Cultivator',c:'Tools',b:'blackforest',d:[],m:{'Core wood':5,'Bronze':5},s:'Forge',note:'Farming.'},
+{n:'Abyssal Harpoon',c:'Tools',b:'ocean',d:[['pierce',10]],m:{'Fine wood':8,'Chitin':30,'Leather scraps':3},s:'Workbench 2',note:'Drags serpents in.'},
+{n:'Fishing Rod',c:'Tools',b:'ocean',d:[],s:'Haldor, 350 coins',note:'Can\'t be crafted.'},
+{n:'Grappling Hook',c:'Tools',b:'mistlands',d:[],m:{'Yggdrasil wood':10,'Refined eitr':10,'Mandible':4,'Hook':1},s:'Black Forge',note:'New in 1.0. Two-handed traversal tool.'}
+];
+const ARMOR=[
+{n:'Rag Tunic',c:'Chest',b:'meadows',a:1,m:{'Leather scraps':5},s:'Workbench 1'},
+{n:'Rag Pants',c:'Legs',b:'meadows',a:1,m:{'Leather scraps':5},s:'Workbench 1'},
+{n:'Leather Helmet',c:'Head',b:'meadows',a:2,m:{'Deer hide':6},s:'Workbench 2'},
+{n:'Leather Tunic',c:'Chest',b:'meadows',a:2,m:{'Deer hide':6},s:'Workbench 2'},
+{n:'Leather Pants',c:'Legs',b:'meadows',a:2,m:{'Deer hide':6},s:'Workbench 2'},
+{n:'Deer Hide Cape',c:'Cape',b:'meadows',a:1,m:{'Deer hide':4,'Bone fragments':5},s:'Workbench 2'},
+{n:'Troll Leather Helmet',c:'Head',b:'blackforest',a:6,m:{'Troll hide':5,'Bone fragments':3},s:'Workbench',note:'Troll set (helmet, tunic, pants, cape): Sneak skill +15.'},
+{n:'Troll Leather Tunic',c:'Chest',b:'blackforest',a:6,m:{'Troll hide':5},s:'Workbench',note:'Troll set: Sneak +15 with all four pieces.'},
+{n:'Troll Leather Pants',c:'Legs',b:'blackforest',a:6,m:{'Troll hide':5},s:'Workbench',note:'Troll set: Sneak +15 with all four pieces.'},
+{n:'Troll Hide Cape',c:'Cape',b:'blackforest',a:1,m:{'Troll hide':10,'Bone fragments':10},s:'Workbench 2',note:'Fourth piece of the Troll set.'},
+{n:'Headdress of the Bear',c:'Head',b:'blackforest',a:7,m:{'Bear hide':5,'Bear trophy':1},s:'Workbench',note:'Bear set (3pc): +30% health regen, +15% stamina regen, +10% slash and chop damage — but you take +25% blunt/slash/pierce.'},
+{n:'Patterns of the Bear',c:'Chest',b:'blackforest',a:7,m:{'Bear hide':5,'Bear paw':2,'Blueberries':4},s:'Workbench',note:'Bear set bonus — see headdress.'},
+{n:'Loincloth of the Bear',c:'Legs',b:'blackforest',a:7,m:{'Bear hide':5,'Blueberries':4},s:'Workbench',note:'Bear set bonus — see headdress.'},
+{n:'Bronze Helmet',c:'Head',b:'blackforest',a:8,m:{'Bronze':5,'Deer hide':2},s:'Forge 1'},
+{n:'Bronze Cuirass',c:'Chest',b:'blackforest',a:8,m:{'Bronze':5,'Deer hide':2},s:'Forge 1',note:'−5% move speed.'},
+{n:'Bronze Leggings',c:'Legs',b:'blackforest',a:8,m:{'Bronze':5,'Deer hide':2},s:'Forge 1',note:'−5% move speed.'},
+{n:'Root Mask',c:'Head',b:'swamp',a:8,m:{'Root':10,'Ancient bark':10,'Leather scraps':4},s:'Workbench 2',note:'Root set (3pc): Bows skill +15.'},
+{n:'Root Harnesk',c:'Chest',b:'swamp',a:8,m:{'Root':10,'Ancient bark':10,'Deer hide':2},s:'Workbench 2',note:'Root set: Bows +15.'},
+{n:'Root Leggings',c:'Legs',b:'swamp',a:8,m:{'Root':10,'Ancient bark':10,'Deer hide':2},s:'Workbench 2',note:'Root set: Bows +15.'},
+{n:'Iron Helmet',c:'Head',b:'swamp',a:14,m:{'Iron':20,'Deer hide':2},s:'Forge 1'},
+{n:'Iron Scale Mail',c:'Chest',b:'swamp',a:14,m:{'Iron':20,'Deer hide':2},s:'Forge 2',note:'Set totals −10% move speed.'},
+{n:'Iron Greaves',c:'Legs',b:'swamp',a:14,m:{'Iron':20,'Deer hide':2},s:'Forge 2',note:'Set totals −10% move speed.'},
+{n:'Fenris Hood',c:'Head',b:'mountain',a:10,m:{'Fenris hair':20,'Wolf pelt':2,'Cultist trophy':1},s:'Workbench 2',note:'Fenris set (3pc): Fists skill +15, resistant to fire.'},
+{n:'Fenris Coat',c:'Chest',b:'mountain',a:10,m:{'Fenris hair':20,'Wolf pelt':5,'Leather scraps':10},s:'Workbench 2',note:'Fenris set bonus — see hood.'},
+{n:'Fenris Leggings',c:'Legs',b:'mountain',a:10,m:{'Fenris hair':20,'Wolf pelt':5,'Leather scraps':10},s:'Workbench 2',note:'Fenris set bonus — see hood.'},
+{n:'Drake Helmet',c:'Head',b:'mountain',a:20,m:{'Silver':20,'Wolf pelt':2,'Drake trophy':2},s:'Forge 1',note:'Wolf set (3pc): resistant to frost, −10% move speed.'},
+{n:'Wolf Hide Chestpiece',c:'Chest',b:'mountain',a:20,m:{'Silver':20,'Wolf pelt':5,'Chain':1},s:'Forge',note:'Wolf set bonus — see Drake Helmet.'},
+{n:'Wolf Hide Trousers',c:'Legs',b:'mountain',a:20,m:{'Silver':20,'Wolf pelt':5,'Wolf fang':4},s:'Forge',note:'Wolf set bonus — see Drake Helmet.'},
+{n:'Wolf Fur Cape',c:'Cape',b:'mountain',a:1,m:{'Silver':4,'Wolf pelt':6,'Wolf trophy':1},s:'Workbench',note:'Frost resistance.'},
+{n:'Linen Cape',c:'Cape',b:'plains',a:1,m:{'Linen thread':20,'Silver':1},s:'Workbench 2',note:'No frost resistance.'},
+{n:'Lox Cape',c:'Cape',b:'plains',a:1,m:{'Lox pelt':6,'Silver':2},s:'Workbench 2',note:'Resistant to frost. Doesn\'t stack with other frost sources.'},
+{n:'Vilebone Visage',c:'Head',b:'plains',a:12,m:{'Bear hide':5,'Vile trophy':1},s:'Forge',note:'Vilebone set (3pc): +20% health regen, +40% stamina regen, +20% blunt and pierce damage — but you take +25% blunt/slash/pierce.'},
+{n:'Vilebone Cage',c:'Chest',b:'plains',a:18,m:{'Bear hide':4,'Vile ribcage':3,'Linen thread':4},s:'Forge 2',note:'Vilebone set bonus — see visage.'},
+{n:'Vilebone Drapes',c:'Legs',b:'plains',a:18,m:{'Bear hide':10,'Vile ribcage':1,'Linen thread':4},s:'Forge',note:'Vilebone set bonus — see visage.'},
+{n:'Padded Helmet',c:'Head',b:'plains',a:26,m:{'Iron':10,'Linen thread':15},s:'Forge 1'},
+{n:'Padded Cuirass',c:'Chest',b:'plains',a:26,m:{'Iron':10,'Linen thread':20},s:'Forge 2',note:'−5% move speed. Full set is 96 armor at max quality.'},
+{n:'Padded Greaves',c:'Legs',b:'plains',a:26,m:{'Iron':10,'Linen thread':20},s:'Forge 2',note:'−5% move speed.'},
+{n:'Carapace Helmet',c:'Head',b:'mistlands',a:32,m:{'Carapace':16,'Scale hide':3,'Mandible':2,'Refined eitr':4},s:'Black Forge 1',note:'Set: 96 armor at Q1, 114 at Q4. −10% move speed total.'},
+{n:'Carapace Breastplate',c:'Chest',b:'mistlands',a:32,m:{'Carapace':20,'Scale hide':3,'Iron':5,'Refined eitr':4},s:'Black Forge 1',note:'−5% move speed.'},
+{n:'Carapace Greaves',c:'Legs',b:'mistlands',a:32,m:{'Carapace':20,'Scale hide':3,'Iron':5,'Refined eitr':4},s:'Black Forge 1',note:'−5% move speed.'},
+{n:'Eitr-weave Hood',c:'Head',b:'mistlands',a:16,m:{'Linen thread':16,'Refined eitr':15,'Iron':2},s:'Galdr Table',note:'Mage set. Boosts eitr regen.'},
+{n:'Eitr-weave Robe',c:'Chest',b:'mistlands',a:16,m:{'Linen thread':20,'Refined eitr':20,'Feathers':10,'Scale hide':5},s:'Galdr Table',note:'Mage set. Boosts eitr regen.'},
+{n:'Eitr-weave Trousers',c:'Legs',b:'mistlands',a:16,m:{'Linen thread':20,'Refined eitr':20,'Scale hide':10},s:'Galdr Table',note:'Mage set. Boosts eitr regen.'},
+{n:'Feather Cape',c:'Cape',b:'mistlands',a:1,m:{'Feathers':10,'Refined eitr':20,'Scale hide':5},s:'Galdr Table 1',note:'No fall damage, slow fall. Resistant to frost, very weak to fire.'},
+{n:'Hood of Ask',c:'Head',b:'ashlands',a:28,m:{'Linen thread':15,'Lox pelt':4,'Asksvin hide':10},s:'Black Forge',note:'Ask set (3pc): −10% run and jump stamina, −20% attack stamina, +10% pierce damage.'},
+{n:'Breastplate of Ask',c:'Chest',b:'ashlands',a:28,m:{'Linen thread':15,'Lox pelt':4,'Asksvin hide':10},s:'Black Forge',note:'Ask set bonus — see hood.'},
+{n:'Trousers of Ask',c:'Legs',b:'ashlands',a:28,m:{'Linen thread':15,'Lox pelt':4,'Asksvin hide':10},s:'Black Forge',note:'Ask set bonus — see hood.'},
+{n:'Hood of Embla',c:'Head',b:'ashlands',a:19,m:{'Linen thread':16,'Refined eitr':15,'Asksvin hide':2},s:'Galdr Table',note:'+30% eitr regen. Full set +130%.'},
+{n:'Robes of Embla',c:'Chest',b:'ashlands',a:19,m:{'Linen thread':20,'Refined eitr':20,'Asksvin hide':10,'Flametal':5},s:'Galdr Table',note:'+50% eitr regen.'},
+{n:'Trousers of Embla',c:'Legs',b:'ashlands',a:19,m:{'Linen thread':20,'Refined eitr':20,'Asksvin hide':10},s:'Galdr Table',note:'+50% eitr regen.'},
+{n:'Flametal Helmet',c:'Head',b:'ashlands',a:38,m:{'Flametal':16,'Asksvin hide':3,'Charred bone':2,'Refined eitr':4},s:'Black Forge',note:'Set (3pc): +40% heat resistance — lava and boiling water only, not fire. Max quality 3.'},
+{n:'Flametal Breastplate',c:'Chest',b:'ashlands',a:38,m:{'Flametal':20,'Asksvin hide':3,'Charred bone':5,'Morgen heart':1},s:'Black Forge',note:'−5% move speed.'},
+{n:'Flametal Greaves',c:'Legs',b:'ashlands',a:38,m:{'Flametal':20,'Asksvin hide':3,'Charred bone':5},s:'Black Forge',note:'−5% move speed.'},
+{n:'Ashen Cape',c:'Cape',b:'ashlands',a:12,m:{'Asksvin hide':6,'Morgen sinew':2,'Flametal':5},s:'Black Forge 3',note:'Resistant to frost. −10% attack stamina, −20% block stamina.'},
+{n:'Asksvin Cloak',c:'Cape',b:'ashlands',a:1,m:{'Asksvin hide':6,'Morgen sinew':2},s:'Galdr Table 2',note:'Wind Run: faster, cheaper running with the wind. −15% dodge stamina. Resistant to frost.'},
+{n:'Hood of the Vanguard',c:'Head',b:'deepnorth',a:34,m:{'Liquid frost':5},s:'Frost Foundry',note:'Vanguard set (3pc): −10% run and −20% dodge stamina, +10% health and stamina regen, +10% pierce damage.'},
+{n:'Chestpiece of the Vanguard',c:'Chest',b:'deepnorth',a:34,m:{'Liquid frost':5},s:'Frost Foundry',note:'Vanguard set bonus — see hood.'},
+{n:'Trousers of the Vanguard',c:'Legs',b:'deepnorth',a:34,m:{'Liquid frost':5},s:'Frost Foundry',note:'Vanguard set bonus — see hood.'},
+{n:'Headdress of the Caller',c:'Head',b:'deepnorth',a:22,m:{'Liquid frost':5},s:'Frost Foundry',note:'Mage set. +40% eitr regen.'},
+{n:'Robes of the Caller',c:'Chest',b:'deepnorth',a:22,m:{'Liquid frost':5},s:'Frost Foundry',note:'+60% eitr regen, resistant to frost, −2% move speed.'},
+{n:'Trousers of the Caller',c:'Legs',b:'deepnorth',a:22,m:{'Liquid frost':5},s:'Frost Foundry',note:'+60% eitr regen, −2% move speed.'},
+{n:'Helmet of the Protector',c:'Head',b:'deepnorth',a:44,m:{'Liquid frost':5},s:'Frost Foundry',note:'Heaviest armor in the game. Set bonus text not verified.'},
+{n:'Breastplate of the Protector',c:'Chest',b:'deepnorth',a:44,m:{'Liquid frost':5},s:'Frost Foundry',note:'Resistant to frost.'},
+{n:'Trousers of the Protector',c:'Legs',b:'deepnorth',a:44,m:{'Liquid frost':5},s:'Frost Foundry'},
+{n:'Moose Hide Cape',c:'Cape',b:'deepnorth',a:12,m:{'Bloodgold':5,'Moose sinew':2,'Moose hide':6},s:'Black Forge 4 (sources disagree)',note:'Resistant to frost. −20% attack and run stamina.'},
+{n:'Cape of the Caller',c:'Cape',b:'deepnorth',a:12,m:{'Refined eitr':15,'Bloodgold':5,'Seal pelt':6,'Nornathread':2},s:'Galdr Table 4 (sources disagree)',note:'Resistant to frost. +20% eitr regen, −10% dodge stamina.'},
+/* trinkets — one slot, new equipment category */
+{n:'Heart of the Forest',c:'Trinkets',b:'blackforest',m:{'Bronze':5,'Ancient seed':5,'Greydwarf shaman trophy':1},s:'Forge',note:'+25% health regen.'},
+{n:'Bronze Pendant',c:'Trinkets',b:'blackforest',m:{'Bronze':5,'Bear trophy':1,'Ruby':3},s:'Forge',note:'+25% stamina regen.'},
+{n:'Iron Brooch',c:'Trinkets',b:'swamp',m:{'Iron':5,'Ancient bark':5,'Leech trophy':1},s:'Forge',note:'+50 health, +20 armor.'},
+{n:'Nimble Anklet',c:'Trinkets',b:'swamp',m:{'Iron':5,'Withered bone':5,'Surtling trophy':1},s:'Forge',note:'+50 stamina, +15% move speed.'},
+{n:'Fins of Destiny',c:'Trinkets',b:'ocean',m:{'Chitin':5,'Serpent scale':5,'Serpent trophy':1},s:'Forge',note:'+50% swim speed, −80% swim stamina.'},
+{n:'Wolf Sight',c:'Trinkets',b:'mountain',m:{'Silver':5,'Wolf fang':5,'Fenring trophy':1},s:'Forge',note:'Bows +20, Spears +20, +10% pierce damage.'},
+{n:'Crystal Heart',c:'Trinkets',b:'mountain',m:{'Silver':5,'Crystal':5,'Stone golem trophy':1},s:'Forge',note:'Resistant to blunt, slash and pierce.'},
+{n:'Bracelets of the Brave',c:'Trinkets',b:'plains',m:{'Black metal':5,'Lox pelt':5,'Lox trophy':1},s:'Forge',note:'+100 health, Clubs +20, +10% blunt damage.'},
+{n:'Evasion Mantle',c:'Trinkets',b:'plains',m:{'Black metal':5,'Fuling berserker trophy':1,'Linen thread':10},s:'Forge',note:'−50% block stamina, +50% parry bonus, Dodge +20.'},
+{n:'Pulsating Earrings',c:'Trinkets',b:'mistlands',m:{'Carapace':5,'Refined eitr':5,'Gjall trophy':1},s:'Black Forge',note:'+25% eitr regen.'},
+{n:'Resounding Shackle',c:'Trinkets',b:'mistlands',m:{'Refined eitr':5,'Scale hide':5,'Mandible':1,'Seeker trophy':1},s:'Black Forge',note:'+100 stamina, +10% slash damage.'},
+{n:'Jörmundling',c:'Trinkets',b:'ashlands',m:{'Flametal':5,'Refined eitr':5,'Bloodstone':1,'Fallen valkyrie trophy':1},s:'Black Forge',note:'+100 eitr, Elemental Magic +20, Blood Magic +20.'},
+{n:'Brimstone',c:'Trinkets',b:'ashlands',m:{'Flametal':5,'Sulfur':5,'Molten core':1,'Morgen trophy':1},s:'Black Forge',note:'+100 health, +100 stamina.'},
+{n:'Witch Crown',c:'Trinkets',b:'deepnorth',m:{'Bloodgold':5,'Nornathread':5,'Hexen trophy':1},s:'Black Forge',note:'+50 stamina, +50 eitr, +10% health/stamina/eitr regen.'},
+{n:'Neckstabber',c:'Trinkets',b:'deepnorth',m:{'Bloodgold':5,'Long claws':5,'Moose trophy':1},s:'Black Forge',note:'+100 health, +20 armor, +20% health regen, −10% run and attack stamina.'}
+];
+const FOOD=[
+/* foraged & raw */
+{n:'Raspberries',c:'Foraged & raw',b:'meadows',hp:7,st:20,dur:'10 min',m:{},s:'Bushes'},
+{n:'Honey',c:'Foraged & raw',b:'meadows',hp:8,st:35,dur:'15 min',m:{},s:'Beehive'},
+{n:'Mushroom',c:'Foraged & raw',b:'meadows',hp:15,st:15,dur:'15 min',m:{},s:'Meadows & Black Forest'},
+{n:'Blueberries',c:'Foraged & raw',b:'blackforest',hp:8,st:25,dur:'10 min',m:{},s:'Bushes'},
+{n:'Yellow Mushroom',c:'Foraged & raw',b:'blackforest',hp:10,st:30,dur:'10 min',m:{},s:'Dungeons'},
+{n:'Carrot',c:'Foraged & raw',b:'blackforest',hp:10,st:32,dur:'15 min',m:{},s:'Farmed'},
+{n:'Onion',c:'Foraged & raw',b:'mountain',hp:13,st:40,dur:'15 min',m:{},s:'Farmed'},
+{n:'Cloudberries',c:'Foraged & raw',b:'plains',hp:13,st:40,dur:'15 min',m:{},s:'Bushes'},
+{n:'Magecap',c:'Foraged & raw',b:'mistlands',hp:25,st:25,ei:25,dur:'15 min',m:{},s:'Foraged'},
+{n:'Jotun Puffs',c:'Foraged & raw',b:'mistlands',hp:25,st:25,dur:'15 min',m:{},s:'Foraged'},
+{n:'Smoke Puff',c:'Foraged & raw',b:'ashlands',hp:15,st:15,dur:'15 min',m:{},s:'Foraged'},
+{n:'Fiddlehead',c:'Foraged & raw',b:'ashlands',hp:30,st:30,dur:'15 min',m:{},s:'Foraged'},
+{n:'Vineberry Cluster',c:'Foraged & raw',b:'ashlands',hp:30,st:30,ei:30,dur:'15 min',m:{},s:'Foraged or farmed'},
+/* cooking station */
+{n:'Grilled Neck Tail',c:'Cooking Station',b:'meadows',hp:25,st:8,dur:'20 min',m:{'Neck tail':1},s:'Cooking Station'},
+{n:'Cooked Boar Meat',c:'Cooking Station',b:'meadows',hp:30,st:10,dur:'20 min',m:{'Boar meat':1},s:'Cooking Station'},
+{n:'Cooked Deer Meat',c:'Cooking Station',b:'meadows',hp:35,st:12,dur:'20 min',m:{'Deer meat':1},s:'Cooking Station'},
+{n:'Cooked Bear Meat',c:'Cooking Station',b:'blackforest',hp:40,st:13,dur:'20 min',m:{'Bear meat':1},s:'Cooking Station'},
+{n:'Cooked Fish',c:'Cooking Station',b:'swamp',hp:45,st:15,dur:'20 min',m:{'Raw fish':1},s:'Cooking Station'},
+{n:'Cooked Wolf Meat',c:'Cooking Station',b:'mountain',hp:45,st:15,dur:'20 min',m:{'Wolf meat':1},s:'Cooking Station'},
+{n:'Pancakes',c:'Cooking Station',b:'deepnorth',hp:39,st:115,dur:'30 min',m:{'Oat milk':1,'Oat flour':2,'Egg':2,'Blueberries':2},s:'Cooking Station',note:'Yields 3.'},
+/* iron cooking station */
+{n:'Cooked Serpent Meat',c:'Iron Cooking Station',b:'swamp',hp:70,st:23,dur:'25 min',m:{'Serpent meat':1},s:'Iron Cooking Station'},
+{n:'Cooked Lox Meat',c:'Iron Cooking Station',b:'plains',hp:50,st:16,dur:'20 min',m:{'Lox meat':1},s:'Iron Cooking Station'},
+{n:'Cooked Chicken Meat',c:'Iron Cooking Station',b:'plains',hp:60,st:20,dur:'20 min',m:{'Chicken meat':1},s:'Iron Cooking Station'},
+{n:'Cooked Seeker Meat',c:'Iron Cooking Station',b:'mistlands',hp:60,st:20,dur:'20 min',m:{'Seeker meat':1},s:'Iron Cooking Station'},
+{n:'Cooked Hare Meat',c:'Iron Cooking Station',b:'mistlands',hp:60,st:20,dur:'20 min',m:{'Hare meat':1},s:'Iron Cooking Station'},
+{n:'Cooked Asksvin Tail',c:'Iron Cooking Station',b:'ashlands',hp:70,st:24,dur:'20 min',m:{'Asksvin tail':1},s:'Iron Cooking Station'},
+{n:'Cooked Volture Meat',c:'Iron Cooking Station',b:'ashlands',hp:70,st:24,dur:'20 min',m:{'Volture meat':1},s:'Iron Cooking Station'},
+{n:'Cooked Bonemaw Meat',c:'Iron Cooking Station',b:'ashlands',hp:90,st:30,dur:'25 min',m:{'Bonemaw meat':1},s:'Iron Cooking Station'},
+/* cauldron */
+{n:'Boar Jerky',c:'Cauldron',b:'blackforest',hp:23,st:23,dur:'30 min',m:{'Boar meat':1,'Honey':1},s:'Cauldron 1',note:'Yields 2.'},
+{n:'Queens Jam',c:'Cauldron',b:'blackforest',hp:14,st:40,dur:'20 min',m:{'Raspberries':8,'Blueberries':6},s:'Cauldron 1',note:'Yields 4.'},
+{n:'Carrot Soup',c:'Cauldron',b:'blackforest',hp:15,st:45,dur:'25 min',m:{'Mushroom':1,'Carrot':3},s:'Cauldron 1'},
+{n:'Minced Meat Sauce',c:'Cauldron',b:'blackforest',hp:40,st:13,dur:'25 min',m:{'Boar meat':1,'Neck tail':1,'Carrot':1},s:'Cauldron 1'},
+{n:'Deer Stew',c:'Cauldron',b:'blackforest',hp:45,st:15,dur:'25 min',m:{'Blueberries':1,'Carrot':1,'Cooked deer meat':1},s:'Cauldron 1'},
+{n:'Muckshake',c:'Cauldron',b:'swamp',hp:16,st:50,dur:'20 min',m:{'Ooze':1,'Raspberries':2,'Blueberries':2},s:'Cauldron 2'},
+{n:'Turnip Stew',c:'Cauldron',b:'swamp',hp:18,st:55,dur:'25 min',m:{'Boar meat':1,'Turnip':3},s:'Cauldron 2'},
+{n:'Black Soup',c:'Cauldron',b:'swamp',hp:50,st:17,dur:'20 min',m:{'Bloodbag':1,'Honey':1,'Turnip':1},s:'Cauldron 2'},
+{n:'Sausages',c:'Cauldron',b:'swamp',hp:55,st:18,dur:'25 min',m:{'Entrails':4,'Boar meat':1,'Thistle':1},s:'Cauldron 2',note:'Yields 4.'},
+{n:'Serpent Stew',c:'Cauldron',b:'swamp',hp:80,st:26,dur:'30 min',m:{'Mushroom':1,'Cooked serpent meat':1,'Honey':2},s:'Cauldron 2'},
+{n:'Onion Soup',c:'Cauldron',b:'mountain',hp:20,st:60,dur:'20 min',m:{'Onion':3},s:'Cauldron 2'},
+{n:'Wolf Jerky',c:'Cauldron',b:'mountain',hp:33,st:33,dur:'30 min',m:{'Wolf meat':1,'Honey':1},s:'Cauldron 3',note:'Yields 2.'},
+{n:'Eyescream',c:'Cauldron',b:'mountain',hp:21,st:65,dur:'25 min',m:{'Greydwarf eye':3,'Freeze gland':1},s:'Cauldron 3'},
+{n:'Wolf Skewer',c:'Cauldron',b:'mountain',hp:65,st:21,dur:'25 min',m:{'Wolf meat':1,'Mushroom':2,'Onion':1},s:'Cauldron 3'},
+{n:'Cooked Egg',c:'Cauldron',b:'plains',hp:35,st:12,dur:'20 min',m:{'Egg':1},s:'Cauldron 1'},
+{n:'Fish Wraps',c:'Cauldron',b:'plains',hp:70,st:23,dur:'25 min',m:{'Cooked fish':2,'Barley flour':4},s:'Cauldron 4'},
+{n:'Blood Pudding',c:'Cauldron',b:'plains',hp:25,st:75,dur:'30 min',m:{'Thistle':2,'Bloodbag':2,'Barley flour':4},s:'Cauldron 4'},
+{n:'Salad',c:'Cauldron',b:'mistlands',hp:26,st:80,dur:'25 min',m:{'Jotun puffs':3,'Onion':3,'Cloudberries':3},s:'Cauldron 5',note:'Yields 3.'},
+{n:'Mushroom Omelette',c:'Cauldron',b:'mistlands',hp:28,st:85,dur:'25 min',m:{'Egg':3,'Jotun puffs':3},s:'Cauldron 5'},
+{n:'Yggdrasil Porridge',c:'Cauldron',b:'mistlands',hp:27,st:13,ei:80,dur:'25 min',m:{'Sap':4,'Barley':3,'Royal jelly':2},s:'Cauldron 5'},
+{n:'Seeker Aspic',c:'Cauldron',b:'mistlands',hp:28,st:14,ei:85,dur:'30 min',m:{'Seeker meat':2,'Magecap':2,'Royal jelly':2},s:'Cauldron 5',note:'Yields 2.'},
+{n:'Fiery Svinstew',c:'Cauldron',b:'ashlands',hp:95,st:32,dur:'25 min',m:{'Asksvin tail':1,'Vineberry cluster':2,'Smoke puff':1},s:'Cauldron 5'},
+{n:'Spicy Marmalade',c:'Cauldron',b:'ashlands',hp:30,st:90,dur:'25 min',m:{'Vineberry cluster':3,'Honey':1,'Fiddlehead':1},s:'Cauldron 5'},
+{n:'Sizzling Berry Broth',c:'Cauldron',b:'ashlands',hp:28,st:14,ei:85,dur:'25 min',m:{'Sap':3,'Vineberry cluster':2,'Fiddlehead':2},s:'Cauldron 5'},
+{n:'Mashed Meat',c:'Cauldron',b:'ashlands',hp:100,st:34,dur:'25 min',m:{'Asksvin tail':1,'Volture meat':1,'Fiddlehead':1},s:'Cauldron 6'},
+{n:'Scorching Medley',c:'Cauldron',b:'ashlands',hp:32,st:95,dur:'25 min',m:{'Jotun puffs':3,'Onion':3,'Fiddlehead':3},s:'Cauldron 6',note:'Yields 3.'},
+{n:'Sparkling Shroomshake',c:'Cauldron',b:'ashlands',hp:30,st:15,ei:90,dur:'25 min',m:{'Sap':4,'Magecap':2,'Vineberry cluster':2,'Smoke puff':2},s:'Cauldron 6'},
+{n:'Marinated Greens',c:'Cauldron',b:'ashlands',hp:32,st:16,ei:95,dur:'30 min',m:{'Sap':3,'Magecap':2,'Fiddlehead':2,'Smoke puff':2},s:'Cauldron 6'},
+{n:'Lingonberry Juice',c:'Cauldron',b:'deepnorth',hp:35,st:105,dur:'25 min',m:{'Lingonberries':5,'Ice':5},s:'Cauldron (level unverified)'},
+{n:'Meatballs and Poteitr',c:'Cauldron',b:'deepnorth',hp:35,st:18,ei:105,dur:'25 min',m:{'Moose meat':1,'Lingonberries':2,'Poteitr':2},s:'Cauldron (level unverified)'},
+{n:'Meat in Bread',c:'Cauldron',b:'deepnorth',hp:110,st:37,dur:'30 min',m:{'Moose meat':1,'Kale':2,'Oat flour':1,'Lingonberries':2},s:'Cauldron (level unverified)',note:'Yields 2.'},
+{n:'Seal Meat Soup',c:'Cauldron',b:'deepnorth',hp:110,st:37,dur:'30 min',m:{'Seal blubber':2,'Kale':2,'Ice':2},s:'Cauldron (level unverified)'},
+{n:'Oatmeal',c:'Cauldron',b:'deepnorth',hp:39,st:115,ei:85,dur:'30 min',m:{'Oats':2,'Lingonberries':2,'Oat milk':1},s:'Cauldron (level unverified)'},
+/* smoker */
+{n:'Smoked Fish',c:'Smoker',b:'deepnorth',hp:30,st:16,ei:95,dur:'25 min',m:{'Raw fish':1,'Kale':1,'Poteitr':1},s:'Smoker (Cauldron extension)'},
+{n:'Smoked Moose Meat',c:'Smoker',b:'deepnorth',hp:105,st:35,dur:'25 min',m:{'Moose meat':1,'Kale':2},s:'Smoker (Cauldron extension)'},
+/* prep table + oven */
+{n:'Bread',c:'Prep table & oven',b:'plains',hp:23,st:70,dur:'25 min',m:{'Bread dough':1},s:'Prep table → Stone Oven',note:'Yields 2.'},
+{n:'Lox Meat Pie',c:'Prep table & oven',b:'plains',hp:75,st:24,dur:'30 min',m:{'Barley flour':4,'Cloudberries':2,'Lox meat':2},s:'Prep table → Stone Oven'},
+{n:'Frosted Sweetbread',c:'Prep table & oven',b:'plains',hp:43,st:43,dur:'30 min',m:{'Unbaked sweetbread':1},s:'Prep table → Stone Oven'},
+{n:'Meat Platter',c:'Prep table & oven',b:'mistlands',hp:80,st:26,dur:'30 min',m:{'Seeker meat':1,'Lox meat':1,'Hare meat':1},s:'Prep table → Stone Oven'},
+{n:'Honey Glazed Chicken',c:'Prep table & oven',b:'mistlands',hp:80,st:26,dur:'30 min',m:{'Chicken meat':1,'Honey':3,'Jotun puffs':2},s:'Prep table → Stone Oven'},
+{n:'Misthare Supreme',c:'Prep table & oven',b:'mistlands',hp:85,st:28,dur:'25 min',m:{'Hare meat':1,'Jotun puffs':3,'Carrot':2},s:'Prep table → Stone Oven'},
+{n:"Fish 'n' Bread",c:'Prep table & oven',b:'mistlands',hp:30,st:90,dur:'30 min',m:{'Anglerfish':1,'Bread dough':2},s:'Prep table → Stone Oven'},
+{n:'Stuffed Mushroom',c:'Prep table & oven',b:'mistlands',hp:25,st:12,ei:75,dur:'25 min',m:{'Magecap':3,'Blood clot':1,'Turnip':2},s:'Prep table → Stone Oven'},
+{n:'Piquant Pie',c:'Prep table & oven',b:'ashlands',hp:105,st:35,dur:'30 min',m:{'Asksvin tail':2,'Vineberry cluster':2,'Barley flour':4},s:'Prep table → Stone Oven'},
+{n:'Roasted Crust Pie',c:'Prep table & oven',b:'ashlands',hp:34,st:100,dur:'30 min',m:{'Volture egg':1,'Vineberry cluster':2,'Barley flour':4},s:'Prep table → Stone Oven'},
+{n:'Baked Poteitr',c:'Prep table & oven',b:'deepnorth',hp:34,st:17,ei:100,dur:'25 min',m:{'Unbaked poteitr':1},s:'Stone Oven'},
+{n:'Oven Pancake',c:'Prep table & oven',b:'deepnorth',hp:37,st:18,ei:105,dur:'30 min',m:{'Oven pancake batter':1},s:'Stone Oven'},
+/* feasts */
+{n:'Whole Roasted Meadow Boar',c:'Feasts',b:'meadows',hp:35,st:35,dur:'50 min',m:{'Cooked deer meat':2,'Cooked boar meat':5,'Dandelion':4,'Woodland herb blend':1},s:'Food prep table',note:'10 servings. Place it and the group eats off it.'},
+{n:'Black Forest Buffet Platter',c:'Feasts',b:'blackforest',hp:35,st:35,dur:'50 min',m:{'Deer stew':3,'Thistle':5,"Queen's jam":4,'Woodland herb blend':1},s:'Food prep table',note:'10 servings.'},
+{n:"Swamp Dweller's Delight",c:'Feasts',b:'swamp',hp:35,st:35,dur:'50 min',m:{'Sausages':8,'Bloodbag':4,'Turnip stew':2,'Woodland herb blend':1},s:'Food prep table',note:'10 servings.'},
+{n:"Sailor's Bounty",c:'Feasts',b:'ocean',hp:45,st:45,dur:'50 min',m:{'Cooked fish':5,'Thistle':4,'Cooked serpent meat':2,"Seafarer's herbs":1},s:'Food prep table',note:'10 servings.'},
+{n:"Hearty Mountain Logger's Stew",c:'Feasts',b:'mountain',hp:45,st:45,dur:'50 min',m:{'Wolf skewer':2,'Onion soup':3,'Carrot':4,'Mountain peak pepper powder':1},s:'Food prep table',note:'10 servings.'},
+{n:'Plains Pie Picnic',c:'Feasts',b:'plains',hp:55,st:55,dur:'50 min',m:{'Bread':3,'Lox meat pie':2,'Cloudberries':5,'Grasslands herbalist harvest':1},s:'Food prep table',note:'10 servings.'},
+{n:'Mushrooms Galore á la Mistlands',c:'Feasts',b:'mistlands',hp:65,st:65,ei:33,dur:'50 min',m:{'Misthare supreme':1,'Cooked seeker meat':3,'Yggdrasil porridge':1,'Herbs of the hidden hills':1},s:'Food prep table',note:'10 servings.'},
+{n:'Ashlands Gourmet Bowl',c:'Feasts',b:'ashlands',hp:75,st:75,ei:38,dur:'50 min',m:{'Cooked asksvin tail':3,'Vineberry cluster':5,'Scorching medley':2,'Fiery spice powder':1},s:'Food prep table',note:'10 servings.'}
+];
+
+const MEAD=[
+{n:'Minor Healing Mead',b:'any',e:'50 HP over 10s. 2 min cooldown.',m:{'Honey':10,'Blueberries':5,'Raspberries':10,'Dandelion':1},s:'Mead Ketill → Fermenter'},
+{n:'Medium Healing Mead',b:'any',e:'75 HP over 10s. 2 min cooldown.',m:{'Honey':10,'Bloodbag':4,'Raspberries':10,'Dandelion':1},s:'Mead Ketill → Fermenter'},
+{n:'Major Healing Mead',b:'any',e:'125 HP over 10s. 2 min cooldown.',m:{'Honey':10,'Blood clot':4,'Royal jelly':5},s:'Mead Ketill → Fermenter'},
+{n:'Lingering Healing Mead',b:'any',e:'+25% health regen for 5 min. 5 min cooldown.',m:{'Sap':10,'Vineberry cluster':10,'Smoke puff':10},s:'Mead Ketill → Fermenter'},
+{n:'Minor Stamina Mead',b:'any',e:'80 stamina over 2s. 2 min cooldown.',m:{'Honey':10,'Raspberries':10,'Yellow mushroom':10},s:'Mead Ketill → Fermenter'},
+{n:'Medium Stamina Mead',b:'any',e:'160 stamina over 2s. 2 min cooldown.',m:{'Honey':10,'Cloudberries':10,'Yellow mushroom':10},s:'Mead Ketill → Fermenter'},
+{n:'Lingering Stamina Mead',b:'any',e:'+25% stamina regen for 5 min. 5 min cooldown.',m:{'Sap':10,'Cloudberries':10,'Jotun puffs':10},s:'Mead Ketill → Fermenter'},
+{n:'Tasty Mead',b:'any',e:'+100% stamina regen, −50% health regen for 10s.',m:{'Honey':10,'Raspberries':10,'Blueberries':5},s:'Mead Ketill → Fermenter'},
+{n:'Minor Eitr Mead',b:'mistlands',e:'125 eitr over 10s. 2 min cooldown.',m:{'Honey':10,'Sap':5,'Jotun puffs':2,'Magecap':5},s:'Mead Ketill → Fermenter'},
+{n:'Lingering Eitr Mead',b:'mistlands',e:'+25% eitr regen for 5 min. 5 min cooldown.',m:{'Sap':10,'Vineberry cluster':10,'Magecap':10},s:'Mead Ketill → Fermenter'},
+{n:'Poison Resistance Mead',b:'swamp',e:'Poison resistance for 10 min.',m:{'Honey':10,'Thistle':5,'Neck tail':1,'Coal':10},s:'Mead Ketill → Fermenter'},
+{n:'Frost Resistance Mead',b:'mountain',e:'Frost resistance for 10 min.',m:{'Honey':10,'Thistle':5,'Bloodbag':2,'Greydwarf eye':1},s:'Mead Ketill → Fermenter'},
+{n:'Fire Resistance Barley Wine',b:'ashlands',e:'Fire resistance for 10 min.',m:{'Barley':10,'Cloudberries':10},s:'Mead Ketill → Fermenter'},
+{n:'Berserkir Mead',b:'blackforest',e:'−80% stamina on attack, block and dodge for 20s — but you take ×1.5 physical damage. 2 min cooldown.',m:{'Mushroom':10,'Yellow mushroom':10,'Toadstool':1},s:'Mead Ketill → Fermenter (yields 3)'},
+{n:'Anti-sting Concoction',b:'plains',e:'Deathsquitos leave you alone for 10 min.',m:{'Cloudberries':10,'Grouper':3,'Fragrant bundle':1},s:'Mead Ketill → Fermenter'},
+{n:'Draught of Vananidir',b:'ocean',e:'−50% swim stamina for 5 min.',m:{'Dandelion':10,'Perch':2,'Fresh seaweed':1},s:'Mead Ketill → Fermenter'},
+{n:'Mead of Troll Endurance',b:'ocean',e:'+250 carry weight for 5 min. 2 min cooldown.',m:{'Trollfish':2,'Honey':10,'Powdered dragon eggshells':1},s:'Mead Ketill → Fermenter'},
+{n:'Tonic of Ratatosk',b:'any',e:'+15% walk/run speed, +7.5% swim speed for 10 min.',m:{'Honey':10,'Blueberries':10,'Cured squirrel hamstring':1},s:'Mead Ketill → Fermenter'},
+{n:'Brew of Animal Whispers',b:'any',e:'Double taming speed for 10 min.',m:{'Onion':5,'Carrot':10,'Pungent pebbles':1},s:'Mead Ketill → Fermenter'},
+{n:'Lightfoot Mead',b:'mistlands',e:'−30% jump stamina, +20% jump height for 10 min.',m:{'Scale hide':2,'Feathers':5,'Magecap':5},s:'Mead Ketill → Fermenter'}
+];
+const BOSSES=[
+{n:'Eikthyr',b:'meadows',sum:'2× Deer trophy',alt:'Meadows, within 1,000 m of the world centre.',
+ drop:'Hard antler ×3 (Antler Pickaxe), Eikthyr trophy',pow:'−60% stamina cost for running, jumping and swimming.',
+ mods:'<span class="mod w">weak spirit</span> · <span class="mod i">immune stagger</span>',
+ tac:'Antler melee, a lightning charge beam and a lightning stomp. 500 HP.'},
+{n:'The Elder',b:'blackforest',sum:'3× Ancient seed',alt:'Black Forest. Burial Chamber runestones point the way.',
+ drop:'Swamp key (one per player), Elder trophy',pow:'+60% chop and pickaxe damage, +30% health regen.',
+ mods:'<span class="mod w">very weak fire</span> · <span class="mod i">immune poison, spirit, stagger</span>',
+ tac:'Summons roots, fires vine volleys (pierce) and stomps (blunt). Bring fire arrows. 2,500 HP.'},
+{n:'Bonemass',b:'swamp',sum:'10× Withered bone',alt:'Swamp, at least 2,000 m from centre. Bones come from Sunken Crypts.',
+ drop:'Wishbone (one per player), Bonemass trophy',pow:'−25% blunt, slash and pierce damage taken; blocking costs no stamina, +5 stamina per block.',
+ mods:'<span class="mod w">weak blunt, frost</span> · <span class="mod r">resists slash; very resists fire, pierce</span> · <span class="mod i">immune poison, stagger</span>',
+ tac:'Poison vomit can\'t be blocked or dodged — drink Poison Resistance Mead. Punches for blunt + poison and spawns skeletons and blobs. 5,000 HP.'},
+{n:'Moder',b:'mountain',sum:'3× Dragon egg',alt:'Mountain altar; found via mountain towers and Frost Caves.',
+ drop:'Dragon tear ×10, Moder trophy',pow:'Tailwind when sailing, +300 carry weight, +10% move speed, −50% frost damage.',
+ mods:'<span class="mod w">weak fire</span> · <span class="mod i">immune frost, spirit, stagger</span>',
+ tac:'Bite, claw, an ice barrage and a 200-frost breath beam. Leave Frostner at home. 7,500 HP.'},
+{n:'Yagluth',b:'plains',sum:'5× Fuling totem',alt:'Plains, at the stone-hand ruins.',
+ drop:'Torn spirit ×3, Yagluth trophy',pow:'−50% lightning damage, +25 Farming skill, +10% all damage dealt.',
+ mods:'<span class="mod r">resists fire; very resists pierce</span> · <span class="mod i">immune poison, stagger</span>',
+ tac:'Fire-and-lightning beam, meteor rain and a nova that leaves burning ground. Drink Fire Resistance Barley Wine. 10,000 HP.'},
+{n:'The Queen',b:'mistlands',sum:'Sealbreaker (first kill) or 3× Seeker soldier trophy (resummon)',alt:'Infested Citadel. Sealbreaker fragments come from Infested Mines.',
+ drop:'Majestic carapace ×5, Queen trophy',pow:'+100% eitr regen, sneaking costs no stamina, −50% poison damage.',
+ mods:'<span class="mod r">resists pierce</span> · <span class="mod i">immune spirit</span>',
+ tac:'Teleports, rushes, spits poison, slaps, and calls seekers and broods throughout. 12,500 HP.'},
+{n:'Fader',b:'ashlands',sum:'3× Bell (each from 3 bell fragments, found in Charred Fortresses)',alt:'The Coliseum in the Ashlands.',
+ drop:'Fader relic ×5, Fader trophy',pow:'−50% fire damage, +100% adrenaline gain, −50% stagger build-up.',
+ mods:'<span class="mod r">resists pierce</span> · <span class="mod i">immune fire, spirit</span>',
+ tac:'Unblockable ground fissures, flame breath, meteors, a wall of fire, and summons Charred. 25,000 HP.'},
+{n:'Kall Fimbulbringer',b:'deepnorth',sum:'3× Malicious blood',alt:'Opens the Aesir Passage into The Prison, Deep North.',
+ drop:'Sacrificial blood, Crown jewel (crafts the Crown of Valheim)',pow:'None. Take the Sacrificial blood to the Sacrificial Stones in the Meadows to finish the game.',
+ tac:'Final boss, new in 1.0. Three phases, about 47,000 HP total. In phase two he\'s invulnerable in an ice block while spirits of earlier bosses attack. Wiki coverage is still thin — check in-game.'}
+];
+
+const MINIBOSSES=[
+{n:'Brenna',b:'blackforest',where:'Smouldering Tomb',mods:'Weak blunt, frost. Resists pierce. Immune fire, poison. 1,200 HP.'},
+{n:'Geirrhafa',b:'mountain',where:'Howling Cavern',mods:'Weak fire. Immune frost. 3,700 HP.'},
+{n:'Zil & Thungr',b:'plains',where:'Sealed Tower',mods:'Thungr about 4,200 HP, Zil about 2,100.'},
+{n:'Lord Reto',b:'ashlands',where:'Tomb of Lord Reto',mods:'Weak spirit. Resists pierce, fire, frost. Immune poison. 7,500 HP. Part of the Dyrnwyn quest.'}
+];
+
+const WEAK=[
+{n:'Boar',b:'meadows',w:[],r:[],i:['spirit']},
+{n:'Neck',b:'meadows',w:['fire'],r:['poison'],i:['spirit']},
+{n:'Greyling',b:'meadows',w:['fire'],r:['poison'],i:['spirit']},
+{n:'Greydwarf',b:'blackforest',w:['fire'],r:['poison'],i:['spirit']},
+{n:'Greydwarf Brute',b:'blackforest',w:['fire'],r:['poison'],i:['spirit']},
+{n:'Greydwarf Shaman',b:'blackforest',w:['fire'],r:['poison'],i:['spirit'],note:'Heals its pack. Kill it first.'},
+{n:'Troll',b:'blackforest',w:['pierce'],r:['blunt'],i:['spirit']},
+{n:'Skeleton',b:'blackforest',w:['blunt','fire'],r:['pierce','frost'],i:['poison']},
+{n:'Rancid Remains',b:'blackforest',w:['blunt','fire'],r:['pierce','frost'],i:['poison']},
+{n:'Ghost',b:'blackforest',w:['spirit'],r:['blunt','pierce','slash'],i:['poison']},
+{n:'Bear',b:'blackforest',w:['fire'],r:['frost','blunt','pierce'],i:['spirit']},
+{n:'Blob',b:'swamp',w:['blunt','frost','lightning'],r:['fire','pierce','slash'],i:['poison','stagger']},
+{n:'Oozer',b:'swamp',w:['blunt','frost','lightning'],r:['fire','pierce','slash'],i:['poison','stagger'],note:'Splits into two blobs on death.'},
+{n:'Draugr',b:'swamp',w:[],r:['fire'],i:['poison']},
+{n:'Draugr Elite',b:'swamp',w:[],r:['fire'],i:['poison']},
+{n:'Wraith',b:'swamp',w:['fire','spirit'],r:['blunt','pierce','slash'],i:['frost','poison']},
+{n:'Leech',b:'swamp',w:[],r:['poison'],i:['fire','spirit','stagger']},
+{n:'Surtling',b:'swamp',w:['frost'],r:[],i:['fire','poison','spirit']},
+{n:'Abomination',b:'swamp',w:['fire'],r:['blunt','pierce'],i:['frost','poison','spirit']},
+{n:'Kvastur',b:'swamp',w:['fire'],r:[],i:['poison','spirit'],note:'Neutral until provoked.'},
+{n:'Wolf',b:'mountain',w:[],r:[],i:['spirit']},
+{n:'Drake',b:'mountain',w:['fire'],r:[],i:['frost','spirit','stagger']},
+{n:'Fenring',b:'mountain',w:['fire'],r:['poison'],i:[]},
+{n:'Stone Golem',b:'mountain',w:['pickaxe'],r:['pierce','slash'],i:['fire','frost','poison','spirit']},
+{n:'Bat',b:'mountain',w:['fire','spirit'],r:['blunt','slash','pierce'],i:['frost','poison'],note:'Frost Caves.'},
+{n:'Ulv',b:'mountain',w:['poison'],r:['fire'],i:[],note:'Frost Caves.'},
+{n:'Cultist',b:'mountain',w:['poison'],r:[],i:['fire'],note:'Frost Caves.'},
+{n:'Fuling',b:'plains',w:[],r:[],i:['spirit']},
+{n:'Fuling Berserker',b:'plains',w:[],r:[],i:['spirit']},
+{n:'Fuling Shaman',b:'plains',w:[],r:[],i:['spirit']},
+{n:'Deathsquito',b:'plains',w:[],r:[],i:['spirit','stagger'],note:'Anti-sting Concoction keeps them off you.'},
+{n:'Lox',b:'plains',w:['fire'],r:['blunt','frost','slash'],i:['spirit']},
+{n:'Growth',b:'plains',w:['blunt','fire'],r:['frost','pierce','slash'],i:['poison','stagger']},
+{n:'Vile',b:'plains',w:['fire','spirit'],r:['frost','blunt','pierce','slash'],i:['poison']},
+{n:'Seeker',b:'mistlands',w:[],r:['blunt','pierce','slash'],i:['spirit']},
+{n:'Seeker Soldier',b:'mistlands',w:[],r:['blunt','pierce','slash'],i:['spirit'],note:'Weak point on the abdomen.'},
+{n:'Seeker Brood',b:'mistlands',w:[],r:['blunt','pierce','slash'],i:['spirit']},
+{n:'Gjall',b:'mistlands',w:[],r:['fire'],i:['spirit'],note:'Weak point underneath. Drops ticks.'},
+{n:'Tick',b:'mistlands',w:['pierce'],r:[],i:['spirit']},
+{n:'Dvergr Rogue',b:'mistlands',w:[],r:[],i:['spirit'],note:'Neutral until provoked.'},
+{n:'Dvergr Mage',b:'mistlands',w:[],r:['fire','frost'],i:['spirit'],note:'Neutral until provoked.'},
+{n:'Charred Warrior',b:'ashlands',w:['spirit'],r:['pierce','fire'],i:['poison']},
+{n:'Charred Marksman',b:'ashlands',w:['spirit'],r:['pierce','fire'],i:['poison']},
+{n:'Charred Warlock',b:'ashlands',w:['spirit'],r:['pierce','frost','fire'],i:['poison']},
+{n:'Charred Twitcher',b:'ashlands',w:['spirit'],r:['pierce','fire'],i:['poison']},
+{n:'Fallen Valkyrie',b:'ashlands',w:['spirit'],r:['fire'],i:['poison']},
+{n:'Morgen',b:'ashlands',w:['lightning'],r:['blunt','slash','pierce','fire'],i:[]},
+{n:'Asksvin',b:'ashlands',w:[],r:['fire','poison'],i:['spirit']},
+{n:'Volture',b:'ashlands',w:['frost'],r:[],i:['poison']},
+{n:'Lava Blob',b:'ashlands',w:['blunt','frost','lightning'],r:['pierce','poison'],i:['fire'],note:'Explodes when hit.'},
+{n:'Skugg',b:'ashlands',w:[],r:['pierce','pickaxe','fire','lightning'],i:['poison']},
+{n:'Bonemaw Serpent',b:'ashlands',w:['frost'],r:['poison'],i:['fire','spirit']},
+{n:'Serpent',b:'ocean',w:['frost'],r:['poison'],i:['fire','spirit','stagger']}
+];
+
+const STATIONS=[
+{n:'Workbench',b:'meadows',m:{'Wood':10},w:'Base crafting and repair. Needs a roof.'},
+{n:'Chopping Block',b:'meadows',m:{'Wood':10,'Flint':10},w:'Workbench upgrade.'},
+{n:'Tanning Rack',b:'meadows',m:{'Wood':10,'Flint':15,'Leather scraps':20,'Deer hide':5},w:'Workbench upgrade.'},
+{n:'Adze',b:'blackforest',m:{'Fine wood':10,'Bronze':3},w:'Workbench upgrade.'},
+{n:'Tool Shelf',b:'swamp',m:{'Fine wood':10,'Iron':4,'Obsidian':4},w:'Workbench upgrade.'},
+{n:'Cooking Station',b:'meadows',m:{'Wood':2},w:'Goes over a fire. Grills meat and fish.'},
+{n:'Beehive',b:'meadows',m:{'Wood':10,'Queen bee':1},w:'Honey, up to 4 at a time.'},
+{n:'Barber Station',b:'meadows',m:{'Fine wood':10,'Barber kit':1,'Bronze nails':5,'Troll hide':5},w:'Change hair and beard. Barber kit is bought from Hildir.'},
+{n:'Forge',b:'blackforest',m:{'Stone':4,'Coal':4,'Wood':10,'Copper':6},w:'Metal weapons and armor.'},
+{n:'Forge Cooler',b:'blackforest',m:{'Fine wood':25,'Copper':10},w:'Forge upgrade.'},
+{n:'Anvils',b:'blackforest',m:{'Wood':5,'Bronze':2},w:'Forge upgrade.'},
+{n:"Smith's Anvil",b:'swamp',m:{'Wood':5,'Iron':20},w:'Forge upgrade.'},
+{n:'Forge Toolrack',b:'swamp',m:{'Wood':10,'Iron':15},w:'Forge upgrade.'},
+{n:'Forge Bellows',b:'mistlands',m:{'Wood':5,'Deer hide':5,'Chain':4},w:'Forge upgrade.'},
+{n:'Grinding Wheel',b:'mistlands',m:{'Wood':25,'Sharpening stone':1},w:'Forge upgrade.'},
+{n:'Cauldron',b:'blackforest',m:{'Tin':10},w:'Real cooking. Upgrades unlock higher-tier recipes.'},
+{n:'Smelter',b:'blackforest',m:{'Stone':20,'Surtling core':5},w:'Ore into bars. Feed it coal.'},
+{n:'Charcoal Kiln',b:'blackforest',m:{'Stone':20,'Surtling core':5},w:'Wood into coal.'},
+{n:'Fermenter',b:'blackforest',m:{'Fine wood':30,'Bronze':5,'Resin':10},w:'Mead base into finished mead. Two in-game days; usually 6 per batch.'},
+{n:'Portal',b:'blackforest',m:{'Greydwarf eye':10,'Fine wood':20,'Surtling core':2},w:'Paired teleport. Ore and metal can\'t go through.'},
+{n:'Mead Ketill',b:'swamp',m:{'Tin':4,'Copper':6,'Leather scraps':2},w:'Brews mead bases.'},
+{n:'Stonecutter',b:'swamp',m:{'Wood':10,'Iron':2,'Stone':4},w:'Stone building pieces and sharpening stones.'},
+{n:'Artisan Table',b:'mountain',m:{'Dragon tear':2,'Wood':10},w:'From Moder. Required nearby to build the windmill, spinning wheel, stone oven and blast furnace.'},
+{n:'Spinning Wheel',b:'mountain',m:{'Fine wood':20,'Iron nails':10,'Leather scraps':5},w:'Flax into linen thread.'},
+{n:'Stone Oven',b:'mountain',m:{'Iron':15,'Stone':20,'Surtling core':4},w:'Bakes bread, pies and prepped dishes.'},
+{n:'Blast Furnace',b:'mountain',m:{'Stone':20,'Surtling core':5,'Iron':10,'Fine wood':20},w:'Black metal and flametal.'},
+{n:'Iron Cooking Station',b:'mountain',m:{'Chain':3,'Iron':3},w:'Cooks the big meats — lox, serpent, seeker, asksvin and so on.'},
+{n:'Windmill',b:'plains',m:{'Stone':20,'Wood':30,'Iron nails':30},w:'Barley into barley flour.'},
+{n:'Black Forge',b:'mistlands',m:{'Black marble':10,'Yggdrasil wood':10,'Black core':5},w:'Mistlands, Ashlands and Deep North gear.'},
+{n:'Black Forge Cooler',b:'mistlands',m:{'Iron':5,'Copper':5,'Black marble':4},w:'Black Forge upgrade.'},
+{n:'Vice',b:'mistlands',m:{'Iron':5,'Copper':8,'Mechanical spring':2},w:'Black Forge upgrade.'},
+{n:'Galdr Table',b:'mistlands',m:{'Black metal':10,'Yggdrasil wood':20,'Black core':5,'Refined eitr':5},w:'Staffs and mage armor.'},
+{n:'Eitr Refinery',b:'mistlands',m:{'Black marble':20,'Black metal':5,'Yggdrasil wood':10,'Black core':5,'Sap':3},w:'Sap and soft tissue into refined eitr.'},
+{n:'Food Preparation Table',b:'mistlands',m:{'Iron':5,'Fine wood':20,'Leather scraps':15},w:'Feasts and oven prep.'},
+{n:'Metal Cutter',b:'ashlands',m:{'Black marble':5,'Flametal':5,'Ashwood':5,'Charred bone':4},w:'Black Forge upgrade.'},
+{n:'Gem Cutter',b:'ashlands',m:{'Flametal':5,'Ashwood':8,'Morgen sinew':2,'Bloodstone':1},w:'Black Forge upgrade.'},
+{n:'Shield Generator',b:'ashlands',m:{'Iron':5,'Copper':5,'Shield core':1},w:'30 m dome that stops cinder rain and projectiles. Fuelled with bones.'},
+{n:'Stone Portal',b:'ashlands',m:{'Greydwarf eye':10,'Grausten':30,'Molten core':2},w:'Portal that lets ore and metal through.'},
+{n:"Smith's Apron",b:'deepnorth',m:{},w:'New in 1.0. Black Forge extension. Cost not documented yet.'},
+{n:'Smoker',b:'deepnorth',m:{},w:'New in 1.0. Cauldron extension for smoked foods. Cost not documented yet.'},
+{n:'Standing Loom',b:'deepnorth',m:{},w:'New in 1.0. Galdr Table extension. Cost not documented yet.'},
+{n:'Frost Foundry',b:'deepnorth',m:{},w:'New in 1.0. Hardens cast Nord gear. Cost not documented yet.'},
+{n:'Frigid Kiln',b:'deepnorth',m:{},w:'New in 1.0. Cost not documented yet.'}
+];
+
+const SKILLS=[
+ ['Weapons',['Swords','Axes','Clubs','Spears','Polearms','Knives','Fists','Bows','Crossbows']],
+ ['Defence',['Blocking','Dodge']],
+ ['Magic',['Elemental Magic','Blood Magic']],
+ ['Gathering & making',['Wood Cutting','Pickaxes','Farming','Fishing','Cooking','Crafting']],
+ ['Getting around',['Running','Jumping','Swimming','Sneaking','Riding']]
+];
+
+const NEW10=[
+ ['Released','September 9, 2026. Hotfixes 1.0.10 and 1.0.12 followed, then patches 1.0.14 and 1.0.15.'],
+ ['New biome','The Deep North — its own gear tier, creatures, dungeons, stations, food and building pieces. Deep snow has to be cleared before you build, and seas and ponds freeze.'],
+ ['New boss','Kall Fimbulbringer, the final boss. No Forsaken Power — his Sacrificial blood ends the game at the Meadows stones.'],
+ ['New gear','40+ weapons (the cast-and-harden Nord line), 4 armor sets (Vanguard, Caller and Protector among them), 2 capes, 2 trinkets (Witch Crown, Neckstabber), plus tools, bombs and ammo.'],
+ ['New stations','Frost Foundry and Frigid Kiln, plus extensions: Smith\'s Apron (Black Forge), Smoker (Cauldron), Standing Loom (Galdr Table).'],
+ ['New tools & systems','Grappling Hook. Bigger inventory — Haldor sells Deeper Pockets and Wider Pockets. Two new raids: "The Jotun Have Found You" and "They Emerge From Below…". Achievements. All hair and beard styles available at character creation. A HUD option showing who placed a building piece.'],
+ ['Rebalanced','Bjorn spawns less and has less HP. Mistlands and Ashlands gear lasts longer. Fewer Ashlands spawns, but Charred respawn faster. Wisp light and Mistlands weapons clear more mist. Rare drops are less streaky. The notes give no exact numbers.'],
+ ['Skills','No new skills. Still 24, each capped at 100.'],
+ ['Platforms','Full crossplay across PC, Mac, Linux, Xbox and — new — PlayStation 5 and Switch 2.']
+];
+
+const BREAKDOWN={
+ 'Bronze':{'Copper':2,'Tin':1},
+ 'Copper':{'Copper ore':1},'Tin':{'Tin ore':1},'Iron':{'Scrap iron':1},'Silver':{'Silver ore':1},
+ 'Black metal':{'Black metal scrap':1},'Flametal':{'Flametal ore':1},
+ 'Linen thread':{'Flax':1},'Barley flour':{'Barley':1},'Iron nails':{'Iron':0.1},
+ 'Cooked deer meat':{'Deer meat':1},'Cooked boar meat':{'Boar meat':1},'Cooked fish':{'Raw fish':1},
+ 'Cooked serpent meat':{'Serpent meat':1},'Cooked seeker meat':{'Seeker meat':1},'Cooked asksvin tail':{'Asksvin tail':1}
+};
+/* =====================================================================
+   STATE + HELPERS
+   ===================================================================== */
+const LS='valheimCompanion.v2';
+let state={tab:'news',biomes:[],open:{},cart:{}};
+try{Object.assign(state,JSON.parse(localStorage.getItem(LS)||'{}'))}catch(e){}
+const save=()=>{try{localStorage.setItem(LS,JSON.stringify(state))}catch(e){}};
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const jsq=s=>esc(String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'"));
+const RAIL=Object.keys(BIOMES);
+const bio=b=>BIOMES[b]||{n:b==='any'?'Any biome':b,t:0};
+const matStr=m=>Object.entries(m||{}).map(([k,v])=>`<b>${v}</b> ${esc(k)}`).join(' · ');
+const mini=b=>{const t=bio(b).t, seq=RAIL.filter(k=>k!=='ocean');
+  return `<span class="mini" style="--c:var(--${b})" title="${esc(bio(b).n)}">${
+    seq.map(k=>`<i class="${k===b?'h':(BIOMES[k].t<t?'p':'')}"></i>`).join('')}</span>`;};
+const dmg=d=>(d&&d.length)?`<div class="stats">${d.map(([t,v])=>`<span><em>${esc(t)}</em> ${esc(v)}</span>`).join('')}</div>`:'';
+const dot=b=>`<span class="dot" style="--c:var(--${b})"></span>`;
+
+let q='';
+function visible(it){
+  if(state.biomes.length && it.b!=='any' && !state.biomes.includes(it.b)) return false;
+  if(!q) return true;
+  return JSON.stringify(it).toLowerCase().includes(q);
+}
+
+function row(it,stats){
+  return `<div class="row">
+    ${it.m&&Object.keys(it.m).length?`<button class="add" aria-label="Add ${esc(it.n)} to build list" onclick="addCart('${jsq(it.n)}')">+</button>`:''}
+    <h3>${esc(it.n)}</h3>
+    <div class="where">${mini(it.b)}<span>${esc(bio(it.b).n)}${it.s?' · '+esc(it.s):''}</span></div>
+    ${stats||''}
+    ${it.m&&Object.keys(it.m).length?`<div class="mats">${matStr(it.m)}</div>`:''}
+    ${it.note?`<div class="note">${esc(it.note)}</div>`:''}
+  </div>`;
+}
+function section(id,title,sub,inner,count){
+  const open=state.open[id]!==false;
+  return `<details class="grp" ${open?'open':''} ontoggle="setOpen('${jsq(id)}',this.open)">
+    <summary><h2>${esc(title)}</h2>${sub?`<span class="sub">${esc(sub)}</span>`:''}
+    <span class="cnt">${count}</span></summary>${inner}</details>`;
+}
+function setOpen(id,v){state.open[id]=v;save();}
+function allSections(v){document.querySelectorAll('details.grp').forEach(d=>d.open=v);}
+const byTier=(a,b)=>bio(a.b).t-bio(b.b).t;
+const none='<div class="nores">Nothing matches. Clear the search or pick another biome.</div>';
+
+function grouped(list,cats,fn,lede,prefix){
+  let html=lede?`<p class="lede">${lede}</p>`:'',any=false;
+  (cats||[...new Set(list.map(x=>x.c))]).forEach(c=>{
+    const l=list.filter(x=>x.c===c&&visible(x)).sort(byTier);
+    if(!l.length) return; any=true;
+    html+=section(prefix+c,c,'',`<div class="rows">${l.map(fn).join('')}</div>`,l.length);
+  });
+  return any?html:(lede?`<p class="lede">${lede}</p>`:'')+none;
+}
+
+/* =====================================================================
+   RENDERERS
+   ===================================================================== */
+const R={
+ weapons:()=>grouped(WEAPONS,null,w=>row(w,dmg(w.d)),LEDE.weapons,'w-'),
+ armor:()=>grouped(ARMOR,null,a=>row(a,a.a!=null?`<div class="stats"><span><em>armor</em> ${esc(a.a)}</span></div>`:''),LEDE.armor,'a-'),
+ food:()=>{
+  let html=`<p class="lede">${LEDE.food}</p>`,any=false;
+  [...new Set(FOOD.map(f=>f.c))].forEach(c=>{
+    const l=FOOD.filter(f=>f.c===c&&visible(f)).sort(byTier);
+    if(!l.length) return; any=true;
+    const ei=l.some(f=>f.ei);
+    html+=section('f-'+c,c,'',`<div class="tw"><table>
+      <tr><th>Food</th><th>HP</th><th>Stam</th>${ei?'<th>Eitr</th>':''}<th>Time</th><th>Ingredients</th><th>Notes</th></tr>
+      ${l.map(f=>`<tr><td>${dot(f.b)}<b>${esc(f.n)}</b><div class="dim" style="font-size:14px;margin-left:14px">${esc(bio(f.b).n)} · ${esc(f.s||'')}</div></td>
+        <td class="n">${esc(f.hp)}</td><td class="n">${esc(f.st)}</td>${ei?`<td class="n">${esc(f.ei||'—')}</td>`:''}
+        <td class="n">${esc(f.dur||'')}</td>
+        <td>${Object.keys(f.m||{}).length?`<span class="dim">${matStr(f.m)}</span>`:'<span class="dim">—</span>'}</td>
+        <td class="dim">${esc(f.note||'')}</td></tr>`).join('')}</table></div>`,l.length);
+  });
+  return any?html:`<p class="lede">${LEDE.food}</p>`+none;
+ },
+ mead:()=>{
+  const l=MEAD.filter(visible).sort(byTier);
+  return `<p class="lede">${LEDE.mead}</p>`+(l.length?section('m-all','Meads & potions','',
+    `<div class="rows">${l.map(m=>row(m,`<div class="stats" style="font-family:var(--body);font-size:16px">${esc(m.e)}</div>`)).join('')}</div>`,l.length):none);
+ },
+ bosses:()=>{
+  const l=BOSSES.filter(visible);
+  return `<p class="lede">${LEDE.bosses}</p>`+(l.length?l.map(x=>`<div class="boss">
+    <div><h3>${esc(x.n)}</h3><div class="bio">${dot(x.b)}${esc(bio(x.b).n)}</div></div>
+    <dl class="kv">
+      <dt>Summon</dt><dd>${esc(x.sum)}</dd>
+      <dt>Altar</dt><dd>${esc(x.alt)}</dd>
+      <dt>Drops</dt><dd>${esc(x.drop)}</dd>
+      <dt>Power</dt><dd>${esc(x.pow)}</dd>
+      ${x.mods?`<dt>Damage</dt><dd>${x.mods}</dd>`:''}
+      <dt>Tactics</dt><dd class="dim">${esc(x.tac)}</dd>
+    </dl></div>`).join('')+minis():none);
+ },
+ weak:()=>{
+  const l=WEAK.filter(visible).sort(byTier);
+  const t=(a,c)=>a&&a.length?a.map(x=>`<span class="mod ${c}">${esc(x)}</span>`).join(', '):'<span class="dim">—</span>';
+  return `<p class="lede">${LEDE.weak}</p>`+(l.length?section('wk-all','Enemy damage matchups','',
+   `<div class="tw"><table><tr><th>Enemy</th><th>Weak</th><th>Resists</th><th>Immune</th><th>Notes</th></tr>
+   ${l.map(x=>`<tr><td>${dot(x.b)}<b>${esc(x.n)}</b><div class="dim" style="font-size:14px;margin-left:14px">${esc(bio(x.b).n)}</div></td>
+     <td>${t(x.w,'w')}</td><td>${t(x.r,'r')}</td><td>${t(x.i,'i')}</td>
+     <td class="dim">${esc(x.note||'')}</td></tr>`).join('')}</table></div>`,l.length):none);
+ },
+ stations:()=>{
+  const l=STATIONS.filter(visible).sort(byTier);
+  return `<p class="lede">${LEDE.stations}</p>`+(l.length?section('st-all','Crafting stations & upgrades','',
+    `<div class="rows">${l.map(s=>row(s,`<div class="note" style="font-style:normal;margin:0 0 2px">${esc(s.w)}</div>`)).join('')}</div>`,l.length):none);
+ },
+ skills:()=>`<p class="lede">${LEDE.skills}</p>`+SKILLS.map(([g,l])=>{
+   const f=l.filter(x=>!q||x.toLowerCase().includes(q)||g.toLowerCase().includes(q));
+   return f.length?section('sk-'+g,g,'',`<div class="skills">${f.map(x=>`<span>${esc(x)}</span>`).join('')}</div>`,f.length):'';
+ }).join(''),
+ news:()=>{
+   const l=NEW10.filter(([k,v])=>!q||(k+v).toLowerCase().includes(q));
+   return `<p class="lede">${LEDE.news}</p>`+(l.length?`<dl class="kv news">${l.map(([k,v])=>`<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl>`:none);
+ },
+ calc:()=>renderCalc()
+};
+
+function minis(){
+  const l=MINIBOSSES.filter(visible).sort(byTier);
+  return l.length?`<div style="margin-top:40px">`+section('b-mini','Minibosses','dungeon bosses — no Forsaken Power',
+   `<div class="tw"><table><tr><th>Miniboss</th><th>Where</th><th>Notes</th></tr>${l.map(x=>`<tr><td>${dot(x.b)}<b>${esc(x.n)}</b></td>
+   <td class="dim">${esc(x.where)}</td><td class="dim">${esc(x.mods)}</td></tr>`).join('')}</table></div>`,l.length)+'</div>':'';
+}
+
+/* =====================================================================
+   BUILD LIST
+   ===================================================================== */
+const ALL=()=>[...WEAPONS,...ARMOR,...FOOD,...MEAD,...STATIONS];
+const findItem=n=>ALL().find(x=>x.n===n);
+function addCart(n){state.cart[n]=(state.cart[n]||0)+1;save();paint('calc');count();flash(`Added ${n}`);}
+function setQty(n,v){v=Math.max(0,parseInt(v)||0);if(!v)delete state.cart[n];else state.cart[n]=v;save();paint('calc');count();}
+function clearCart(){state.cart={};save();paint('calc');count();}
+function count(){document.getElementById('cartCount').textContent=Object.values(state.cart).reduce((a,b)=>a+b,0);}
+let fT;function flash(m){const el=document.getElementById('flash');el.textContent=m;el.style.display='block';
+  clearTimeout(fT);fT=setTimeout(()=>el.style.display='none',1400);}
+function totals(){
+  const direct={},raw={};
+  const addRaw=(n,v,d)=>{const br=BREAKDOWN[n];
+    if(br&&d<6)for(const[k,x]of Object.entries(br))addRaw(k,v*x,d+1);else raw[n]=(raw[n]||0)+v;};
+  for(const[n,c]of Object.entries(state.cart)){const it=findItem(n);if(!it)continue;
+    for(const[m,v]of Object.entries(it.m||{})){direct[m]=(direct[m]||0)+v*c;addRaw(m,v*c,0);}}
+  return{direct,raw};
+}
+function renderCalc(){
+  const keys=Object.keys(state.cart),{direct,raw}=totals();
+  const tbl=o=>{const e=Object.entries(o).sort((a,b)=>b[1]-a[1]);
+    return e.length?`<table>${e.map(([k,v])=>`<tr><td>${esc(k)}</td><td class="n" style="text-align:right">${Math.ceil(v*100)/100}</td></tr>`).join('')}</table>`:'<div class="empty">Nothing yet.</div>';};
+  return `<p class="lede">Hit <b>+</b> on any item to add it here. <b>Raw materials</b> breaks bars back into ore and thread back
+    into flax — that's the actual gathering list. Upgrades aren't counted; this is first-craft cost only. Saved in this browser.</p>
+  <div class="calc">
+    <div><h2>Build list</h2>${keys.length?keys.map(k=>`<div class="q">
+      <input type="number" min="0" value="${state.cart[k]}" aria-label="Quantity of ${esc(k)}" onchange="setQty('${jsq(k)}',this.value)">
+      <span>${esc(k)}</span><button class="link" aria-label="Remove ${esc(k)}" onclick="setQty('${jsq(k)}',0)">Remove</button></div>`).join('')
+      +`<button class="link" style="margin-top:14px" onclick="clearCart()">Clear list</button>`
+      :'<div class="empty">Empty. Add something from any tab.</div>'}</div>
+    <div><h2>Direct materials</h2>${tbl(direct)}</div>
+    <div><h2>Raw materials</h2>${tbl(raw)}</div>
+  </div>`;
+}
+
+/* =====================================================================
+   BOOT
+   ===================================================================== */
+const TABS=[['news','New in 1.0'],['weapons','Weapons'],['armor','Armor'],['food','Food'],['mead','Meads'],['bosses','Bosses'],
+  ['weak','Weaknesses'],['stations','Stations'],['skills','Skills'],['calc','Build list']];
+document.getElementById('nav').innerHTML=TABS.map(([k,v])=>`<button data-t="${k}" onclick="go('${k}')">${v}</button>`).join('');
+document.querySelector('main').innerHTML=TABS.map(([k])=>`<div class="tab" id="t-${k}"></div>`).join('');
+const rail=document.getElementById('rail');
+rail.style.setProperty('--n',RAIL.length);
+rail.innerHTML=RAIL.map(k=>`<button class="seg ${k==='ocean'?'ocean':''}" style="--c:var(--${k})" data-b="${k}"
+  aria-pressed="false" onclick="toggleBiome('${k}')">${esc(BIOMES[k].n)}</button>`).join('');
+function paintRail(){rail.classList.toggle('none',!state.biomes.length);
+  rail.querySelectorAll('.seg').forEach(s=>{const on=state.biomes.includes(s.dataset.b);
+    s.classList.toggle('on',on);s.setAttribute('aria-pressed',on);});}
+function toggleBiome(b){const i=state.biomes.indexOf(b);if(i<0)state.biomes.push(b);else state.biomes.splice(i,1);
+  save();paintRail();renderAll();}
+function paint(k){document.getElementById('t-'+k).innerHTML=R[k]();}
+function renderAll(){TABS.forEach(([k])=>paint(k));count();}
+function go(t){if(!R[t])t='weapons';state.tab=t;save();
+  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
+  document.querySelectorAll('.tab').forEach(d=>d.classList.toggle('on',d.id==='t-'+t));
+  window.scrollTo({top:0});}
+let sT;document.getElementById('search').addEventListener('input',e=>{clearTimeout(sT);
+  sT=setTimeout(()=>{q=e.target.value.trim().toLowerCase();renderAll();},140);});
+document.addEventListener('keydown',e=>{
+  if(e.key==='/'&&document.activeElement.tagName!=='INPUT'){e.preventDefault();document.getElementById('search').focus();}
+  if(e.key==='Escape'){const s=document.getElementById('search');s.value='';q='';renderAll();}});
+state.biomes=state.biomes.filter(b=>BIOMES[b]);
+paintRail();renderAll();go(state.tab||'news');
+</script>
+</body>
+</html>
